@@ -367,6 +367,76 @@ namespace Util
                 _ => (80, 24)
             };
         }
+
+
+        public void DisplayDCS()
+        {
+            // Exempel på DCS-egenskaper (lägg till alla som finns i din JSON)
+            // =========================
+            // Grupp 1 – Terminalstatus
+            // =========================
+            this.LogDebug($"IsOnline {IsOnline}");
+            this.LogDebug($"IsBlockMode {IsBlockMode}");
+            this.LogDebug($"IsLineMode {IsLineMode}");
+            this.LogDebug($"IsSoftScroll {IsSoftScroll}");
+            this.LogDebug($"screenFormat {screenFormat}");
+
+
+            // =========================
+            // Grupp 2 – Tangentbordsinställningar
+            // =========================
+            this.LogDebug($"KeyboardRepeatRate {KeyboardRepeatRate}");
+            this.LogDebug($"KeyboardClick {KeyboardClick}");
+            this.LogDebug($"ReverseVideo {ReverseVideo}");
+            this.LogDebug($"ControlRepresentation {ControlRepresentation}");
+            this.LogDebug($"DscMode {DscMode}");
+            this.LogDebug($"SoftLock {SoftLock}");
+            this.LogDebug($"FunctionTermination {FunctionTermination}");
+            this.LogDebug($"SendTabs {SendTabs}");
+            this.LogDebug($"FunctionKeypad {FunctionKeypad}");
+            this.LogDebug($"MarginBell {MarginBell}");
+
+
+            // =========================
+            // Grupp 3 – Kommunikationsparametrar
+            // =========================
+            this.LogDebug($"HostBaudRate {HostBaudRate}");
+            this.LogDebug($"AuxBaudRate {AuxBaudRate}");
+            this.LogDebug($"TwoStopBits {TwoStopBits}");
+            this.LogDebug($"Rollover {Rollover}");
+            this.LogDebug($"Parity {Parity}");
+
+
+            // =========================
+            // Grupp 4 – Visningsattribut
+            // =========================
+            this.LogDebug($"IsColor {IsColor}");
+            this.LogDebug($"CursorBlink {CursorBlink}");
+
+
+            // =========================
+            // Grupp 5 – Statusfält
+            // =========================
+            this.LogDebug($"StatusBarVisible {StatusBarVisible}");
+
+
+            // =========================
+            // Grupp 6 – Övriga terminalinställningar
+            // =========================
+            this.LogDebug($"AutoLineFeed {AutoLineFeed}");
+            this.LogDebug($"LogicalAttributes {LogicalAttributes}");
+            this.LogDebug($"UseSpaceAsPad {UseSpaceAsPad}");
+            this.LogDebug($"ScreenWrap {ScreenWrap}");
+            this.LogDebug($"TransmitModifiedOnly {TransmitModifiedOnly}");
+            this.LogDebug($"TwoPageBoundary {TwoPageBoundary}");
+
+
+            // =========================
+            // Övrigt (ej direkt i DCS)
+            // =========================
+            this.LogDebug($"Display {Display}");
+            this.LogDebug($"PrintMode {PrintMode}");
+        }
     }
 
     public static class ReflectionExtensions

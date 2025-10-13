@@ -16,6 +16,7 @@ namespace Parser
         private CompressedCommandDecoder _commandDecoder;
 
         public bool ManualInputEnabled { get; private set; }
+        public bool inEmacs {  get; private set; }
 
         public EscapeSequenceHandler(CharTableManager charTables, ScreenBuffer buffer, TerminalControl terminal, TerminalState termstate)
         {
@@ -63,6 +64,7 @@ namespace Parser
                     }
                     break;
                 case "`": // ESC `
+                    inEmacs = true;
                     this.LogDebug("[ESC] ESC ` – Disable Manual Input");
                     ManualInputEnabled = false;
                     break;
@@ -82,8 +84,6 @@ namespace Parser
                     _buffer.SetCursorPosition(0, 0); // Återställ cursor
                     this.LogDebug("[ESC] ESC ? → Clear screen + reset");
                     break;
-
-
             }
         }
     }
@@ -102,8 +102,6 @@ namespace Parser
             int row = rowByte == 0 ? 1 : rowByte - 0x20;
             int col = colByte == 0 ? 1 : colByte - 0x20;
 
-            this.LogDebug($"[ESCO] Komprimerad cursorflytt till ({row},{col})");
-
             if (row < 1 || row > 48 || col < 1 || col > 94)
             {
                 this.LogWarning($"[ESCO] Ogiltig position: ({row},{col})");
@@ -121,6 +119,8 @@ namespace Parser
                 this.LogWarning($"[ESCO] Rad {row} är låst – cursorflytt nekas");
                 return;
             }
+
+            this.LogDebug($"[ESCO] Komprimerad cursorflytt till ({row},{col}, tecken att lägga in är {(char)symbol})");
 
             _screen.SetCursorPosition(row - 1, col - 1); // 0-indexerat internt
             _screen.WriteChar((char)symbol);

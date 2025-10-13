@@ -11,7 +11,7 @@ namespace Parser
 
     public class DcsSequenceHandler
     {
-        public event Action<IReadOnlyList<TerminalAction>> ActionsReady;
+        public event Action<string, IReadOnlyList<TerminalAction>> ActionsReady;
         public event Action<byte[]> OnDcsResponse;
         public event Action<string> OnStatusUpdate;
 
@@ -43,7 +43,8 @@ namespace Parser
 
             state.ReadDcs(this.jsonPath, content);
             var actions = DcsSequenceHandler.Build(content);
-            ActionsReady?.Invoke(actions);
+            //ActionsReady?.Invoke(actions);
+            state.DisplayDCS();
         }
 
         private void SendDcsResponse(string dcs)

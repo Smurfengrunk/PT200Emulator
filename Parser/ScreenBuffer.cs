@@ -170,9 +170,9 @@ namespace Parser
 
         public void SetCursorPosition(int row, int col)
         {
-            this.LogTrace($"[CURSOR] Pos=({CursorRow},{CursorCol})");
             CursorRow = Math.Clamp(row, 0, Rows - 1);
             CursorCol = Math.Clamp(col, 0, Cols - 1);
+            this.LogTrace($"[CURSOR] Pos=({CursorRow},{CursorCol})");
         }
 
         public void CarriageReturn()
@@ -218,6 +218,7 @@ namespace Parser
                 for (int c = 0; c < Cols; c++)
                 {
                     _chars[r, c] = ' ';
+                    _mainBuffer[r, c].Char = _chars[r, c];
                     _mainBuffer[r, c].Style = new StyleInfo();
                 }
 
@@ -234,6 +235,7 @@ namespace Parser
             for (int c = 0; c < Cols; c++)
             {
                 _chars[row, c] = ' ';
+                _mainBuffer[CursorRow, c].Char = _chars[CursorRow, c];
                 _mainBuffer[row, c].Style = new StyleInfo();
             }
         }

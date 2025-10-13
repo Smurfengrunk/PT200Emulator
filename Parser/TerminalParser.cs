@@ -80,6 +80,7 @@ namespace Parser
                 this.LogTrace($"[PARSER] OnDcsResponse wired, handler hash={_dcsHandler.GetHashCode()}");
                 DcsResponse?.Invoke(bytes);
             };
+
         }
 
         private void SetState(ParseState newState)
@@ -127,6 +128,8 @@ namespace Parser
                                 default:
                                     {
                                         seqBuffer.Append((char)b);
+                                        Screenbuffer.WriteChar((char)b);
+                                        if (escHandler.inEmacs) this.LogDebug($"{(char)b}");
                                         break;
                                     }
                             }
