@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Util
 {
-    public class Brush {}
+    public class Brush
+    {
+        public Brush() { }
+    }
     public static class Brushes
     {
         public static int Black = 0;

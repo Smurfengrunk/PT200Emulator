@@ -27,12 +27,11 @@ namespace Parser
         public void Handle(byte[] payload)
         {
             RaiseStatus("🟡 Väntar på DCS");
-            const string jsonPath = "Data/DcsBitGroups.json";
             if (payload.Length == 0)
             {
                 this.LogDebug("[DCS] Tom DCS mottagen – statusförfrågan.");
                 RaiseStatus("🟡 Väntar på DCS");
-                var dcs = state.BuildDcs(jsonPath);
+                var dcs = state.BuildDcs(this.jsonPath);
                 SendDcsResponse(dcs);
                 return;
             }
@@ -42,7 +41,7 @@ namespace Parser
             this.LogDebug($"[DCS] Payload: {BitConverter.ToString(payload)}");
             this.LogDebug($"[DCS] Tolkat innehåll: {content}");
 
-            state.ReadDcs(jsonPath, content);
+            state.ReadDcs(this.jsonPath, content);
             var actions = DcsSequenceHandler.Build(content);
             ActionsReady?.Invoke(actions);
         }
@@ -61,11 +60,11 @@ namespace Parser
             var actions = new List<TerminalAction>();
 
             if (content.Contains("BLOCK", StringComparison.OrdinalIgnoreCase))
-                actions.Add(new TerminalAction("SETMODE", "BLOCK"));
+                actions.Add(new SetModeAction("BLOCK"));
             else if (content.Contains("LINE", StringComparison.OrdinalIgnoreCase))
-                actions.Add(new TerminalAction("SETMODE", "LINE"));
+                actions.Add(new SetModeAction("LINE"));
 
-            actions.Add(new TerminalAction("DCS", content));
+            actions.Add(new DcsAction(content));
             return actions;
         }
         private void RaiseStatus(string message)

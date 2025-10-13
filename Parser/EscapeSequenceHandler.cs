@@ -23,7 +23,7 @@ namespace Parser
             _buffer = buffer;
             _terminal = terminal;
             _termState = termstate;
-            //_commandDecoder = new CompressedCommandDecoder(buffer, MainWindow.this);
+            _commandDecoder = new CompressedCommandDecoder(buffer);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Parser
                 case "0":
                     this.LogDebug($"Escape sequence {sequence}");
                     byte[] tmp = Encoding.ASCII.GetBytes(sequence);
-                    _commandDecoder.HandleEscO(tmp[1], tmp[2]);
+                    _commandDecoder.HandleEscO(tmp[0], tmp[1], tmp[2]);
                     break;
                 case "?":
                     _buffer.ClearScreen(); // Rensa hela skärmen
@@ -97,7 +97,7 @@ namespace Parser
             _screen = screen;
         }
 
-        public void HandleEscO(byte rowByte, byte colByte)
+        public void HandleEscO(byte rowByte, byte colByte, byte symbol)
         {
             int row = rowByte == 0 ? 1 : rowByte - 0x20;
             int col = colByte == 0 ? 1 : colByte - 0x20;
@@ -123,6 +123,7 @@ namespace Parser
             }
 
             _screen.SetCursorPosition(row - 1, col - 1); // 0-indexerat internt
+            _screen.WriteChar((char)symbol);
         }
     }
 }

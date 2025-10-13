@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InputHandler\InputHandler.csproj" />
     <ProjectReference Include="..\Parser\Parser.csproj" />
     <ProjectReference Include="..\Rendering\Rendering.csproj" />
     <ProjectReference Include="..\Transport\Transport.csproj" />

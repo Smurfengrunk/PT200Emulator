@@ -6,16 +6,21 @@ namespace Parser
     public interface ITerminalParser
     {
         void Feed(ReadOnlySpan<byte> data);
+
         event Action<IReadOnlyList<TerminalAction>> ActionsReady;
-        event Action<byte[]> OnDcsResponse;
-        ScreenBuffer screenBuffer { get; }
-        CsiSequenceHandler _csiHandler { get; }
-        DcsSequenceHandler _dcsHandler { get; }
-        EscapeSequenceHandler _escapeHandler { get; }
-        TerminalParser terminalParser { get; }
+        event Action<byte[]> DcsResponse;
+
+        ScreenBuffer Screenbuffer { get; }
+
 
     }
 
     // Placeholder – flyttas eller byggs ut senare
-    public record TerminalAction(string Command, object Parameter = null);
+    public abstract record TerminalAction;
+    public record PrintText(string Text) : TerminalAction;
+    public record MoveCursor(int Row, int Col) : TerminalAction;
+    public record ClearScreen() : TerminalAction;
+    public record SetModeAction(string Mode) : TerminalAction;
+    public record DcsAction(string Content) : TerminalAction;
+
 }

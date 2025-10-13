@@ -50,38 +50,33 @@ namespace Parser
                     break;
             }
 
-            using (buffer.BeginUpdate())
+            for (int row = startRow; row <= endRow; row++)
             {
-                for (int row = startRow; row <= endRow; row++)
+                int colStart = (row == startRow) ? startCol : 0;
+                int colEnd = (row == endRow) ? endCol : buffer.Cols - 1;
+
+                for (int col = colStart; col <= colEnd; col++)
                 {
-                    int colStart = (row == startRow) ? startCol : 0;
-                    int colEnd = (row == endRow) ? endCol : buffer.Cols - 1;
+                    // Gör FG/BG-swap om ReverseVideo är aktiv
+                    var fg = style.Foreground;
+                    var bg = style.Background;
+                    if (style.ReverseVideo)
+                        (fg, bg) = (bg, fg);
 
-                    for (int col = colStart; col <= colEnd; col++)
-                    {
-                        // Gör FG/BG-swap om ReverseVideo är aktiv
-                        var fg = style.Foreground;
-                        var bg = style.Background;
-                        if (style.ReverseVideo)
-                            (fg, bg) = (bg, fg);
+                    // Klona stilen och sätt rätt färger
+                    var newStyle = style.Clone();
+                    newStyle.Foreground = fg;
+                    newStyle.Background = bg;
 
-                        // Klona stilen och sätt rätt färger
-                        var newStyle = style.Clone();
-                        newStyle.Foreground = fg;
-                        newStyle.Background = bg;
+                    // Uppdatera cellen i _mainBuffer
+                    var cell = buffer.GetCell(row, col);
+                    cell.Style = newStyle;
+                    buffer.SetCell(row, col, cell);
 
-                        // Uppdatera cellen i _mainBuffer
-                        var cell = buffer.GetCell(row, col);
-                        cell.Style = newStyle;
-                        buffer.SetCell(row, col, cell);
-
-                        // Uppdatera även _styles[,] så RenderFromBuffer ser ändringen
-                        buffer.SetStyle(row, col, newStyle);
-                    }
+                    // Uppdatera även _styles[,] så RenderFromBuffer ser ändringen
+                    buffer.SetStyle(row, col, newStyle);
                 }
             }
-
-            buffer.MarkDirty(); // triggar BufferUpdated → RenderFromBuffer
         }
 
         public void HandleSGR(string[] parameters, ScreenBuffer buffer, TerminalState terminal)

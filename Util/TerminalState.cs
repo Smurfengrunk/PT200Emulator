@@ -21,19 +21,8 @@ namespace Util
             [Description("160 x 24")]
             S160x24
         }
-        private int _rows = 1, _columns = 1;
-        public int Rows(int rows = 1)
-        {
-            var previousRows = _rows;
-            if (rows > 1) _rows = rows;
-            if (previousRows != _rows) this.LogTrace($"[TERMINALSTATE] Rows set to {_rows}");
-            return _rows;
-        }
-        public int Columns(int cols = 1)
-        {
-            if (cols > 1) _columns = cols;
-            return _columns;
-        }
+        public int Rows { get; private set; }
+        public int Columns { get; private set; }
 
         public enum DisplayType
         {
@@ -131,10 +120,8 @@ namespace Util
         public TerminalState()
         {
             screenFormat = ScreenFormat.S80x24; // eller default från config
-            //ScreenBuffer = new ScreenBuffer(24, 80, DisplayTypeToBrush(Display), Brushes.Black, basePath, terminal); // första instans
-                //this.LogDebug($"[TERMINALSTATE] AttachBuffer, buffer Hashcode: {ScreenBuffer.GetHashCode()}");
-            _columns = Columns(80);
-            _rows = Rows(24);
+            Columns = 80;
+            Rows = 24;
         }
 
         public void SetScreenFormat()
@@ -142,24 +129,24 @@ namespace Util
             switch (screenFormat)
             {
                 case ScreenFormat.S80x24:
-                    _columns = Columns(80);
-                    _rows = Rows(24);
+                    Columns = 80;
+                    Rows = 24;
                     break;
                 case ScreenFormat.S80x48:
-                    _columns = Columns(80);
-                    _rows = Rows(48);
+                    Columns = 80;
+                    Rows = 48;
                     break;
                 case ScreenFormat.S132x27:
-                    _columns = Columns(132);
-                    _rows = Rows(27);
+                    Columns = 132;
+                    Rows = 27;
                     break;
                 case ScreenFormat.S160x24:
-                    _columns = Columns(160);
-                    _rows = Rows(24);
+                    Columns = 160;
+                    Rows = 24;
                     break;
                 default:
-                    _columns = Columns(80);
-                    _rows = Rows(24);
+                    Columns = 80;
+                    Rows = 24;
                     break;
             }
         }

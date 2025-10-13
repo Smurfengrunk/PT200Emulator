@@ -22,6 +22,11 @@ namespace Transport
         Task<byte[]> ReadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Startar vänteloop för data från servern.
+        /// </summary>
+        Task StartReceiveLoop(CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Skickar data som råa bytes.
         /// </summary>
         Task WriteAsync(byte[] buffer, CancellationToken cancellationToken = default);

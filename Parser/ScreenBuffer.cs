@@ -13,31 +13,26 @@ namespace Parser
     {
         private const int TabSize = 8;
         public event Action BufferUpdated;
-        public event Action<int, int> CursorMoved;
-        internal int _updateDepth;
-        private bool _dirty;
-        private bool _hasFlushed = false;
         private bool _inSystemLine = false;
-        private CancellationTokenSource _idleCts;
         private readonly TimeSpan _idleDelay = TimeSpan.FromMilliseconds(8);
-        private readonly CharTableManager charTableManager;
-        //private FlushTrigger flushTrigger;
-        private TerminalControl terminalControl;
         private CaretController _caretController;
+        private CharTableManager charTableManager;
         private char[,] _chars;
         public int Rows => _chars.GetLength(0);
         public int Cols => _chars.GetLength(1);
-        private CancellationTokenSource _burstCts;
-        private IDisposable _burstScope;
-        public int _dirtyCount = 0;
         private int ScrollTop, ScrollBottom;
         public int CursorRow { get; private set; }
         public int CursorCol { get; private set; }
+        public bool clearScreen { get; private set; } = false;
+        public void ScreenCleared() => clearScreen = false;
+        private bool _updating;
+        private bool _dirty;
+
         public struct ScreenCell
         {
             public char Char;
-            public Brush Foreground;
-            public Brush Background;
+            public int Foreground;
+            public int Background;
             public StyleInfo Style;
         }
 
@@ -45,80 +40,27 @@ namespace Parser
         public readonly ScreenCell[] _systemLineBuffer;
         public RowLockManager RowLocks { get; } = new();
         public StyleInfo CurrentStyle { get; set; } = new StyleInfo();
-        public ScreenBuffer() { }
-        public IDisposable BeginUpdate() => new UpdateScope(this);
-
-        private void EnterUpdate() => Interlocked.Increment(ref _updateDepth);
-
-        private readonly struct UpdateScope : IDisposable
+        public ScreenBuffer(int rows, int cols, string basePath)
         {
-            private readonly ScreenBuffer _b;
-            public UpdateScope(ScreenBuffer b) { _b = b; _b.EnterUpdate(); }
-            public void Dispose() => _b.LeaveUpdate();
-        }
-
-        private void LeaveUpdate()
-        {
-            if (Interlocked.Decrement(ref _updateDepth) == 0 && _dirty)
-            {
-                // Schemalägg flush istället för att göra den direkt
-                ScheduleIdleFlush();
-            }
-        }
-
-        public void ForceEndUpdate()
-        {
-            while (_updateDepth > 0)
-            {
-                _updateDepth--;
-            }
-            try
-            {
-                _burstCts?.Cancel();
-            }
-            catch
-            {
-            }
-            _burstCts = null;
-
-            _burstScope?.Dispose();
-            _burstScope = null;
-
-            //_burstActive = false;
-
-            _dirty = true;
-        }
-
-        private void ScheduleIdleFlush()
-        {
-            if (_dirtyCount == 0)
-            {
-                this.LogTrace("[BUFFER] Flush skipped – no mutations");
-                return;
-            }
-
-            _idleCts?.Cancel();
-            _idleCts = new CancellationTokenSource();
-            var token = _idleCts.Token;
-
-            var mutations = _dirtyCount;
-            this.LogTrace($"[BUFFER] Flushing {mutations} mutations");
-
-            // coalesce current batch
-            _dirtyCount = 0;
-
-            Task.Delay(_idleDelay, token).ContinueWith(_ =>
-            {
-                this.LogTrace($"[SCHEDULEDIDLEFLUSH] BufferUpdated invoked – handlers: {BufferUpdated?.GetInvocationList().Length ?? 0}, hash: {GetHashCode()}");
-                if (!token.IsCancellationRequested && _dirty && _updateDepth == 0)
+            _mainBuffer = new ScreenCell[rows, cols];
+            _chars = new char[rows, cols];
+            _systemLineBuffer = new ScreenCell[cols];
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
                 {
-                    this.LogTrace("[SCHEDULEIDLEFLUSH] Dags för en uppdatering");
+                    _mainBuffer[r, c] = new ScreenCell();
+                    _mainBuffer[r, c].Style = new StyleInfo();
+                    _chars[r, c] = ' ';
                 }
-            }, TaskScheduler.Default);
+            for (int c = 0; c < cols; c++) _systemLineBuffer[c] = new ScreenCell();
+
+            if (rows <= 0 || cols <= 0) throw new ArgumentOutOfRangeException();
+            var g0path = Path.Combine(basePath, "data", "chartables", "g0.json");
+            var g1path = Path.Combine(basePath, "data", "chartables", "g1.json");
+            charTableManager = new CharTableManager(g0path, g1path);
         }
         public void Resize(int rows, int cols)
         {
-            ForceEndUpdate();
             _mainBuffer = new ScreenCell[rows, cols];
 
                 if (rows <= 0 || cols <= 0) throw new ArgumentOutOfRangeException();
@@ -166,25 +108,63 @@ namespace Parser
             return ((uint)row >= (uint)Rows || (uint)col >= (uint)Cols) ? new StyleInfo() : _mainBuffer[row, col].Style;
         }
 
+        public void BeginUpdate() => _updating = true;
+
+        public void EndUpdate()
+        {
+            _updating = false;
+            if (_dirty)
+            {
+                BufferUpdated?.Invoke();
+                _dirty = false;
+            }
+        }
+
+
         public void WriteChar(char ch)
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
 
             // new cycle starts when first mutation arrives
-            if (_dirtyCount == 0) _hasFlushed = false;
-
-            var glyph = charTableManager.Translate((byte)ch);
+            //if (_dirtyCount == 0) _hasFlushed = false;
 
             var wroteRow = CursorRow;
             var wroteCol = CursorCol;
 
-            //terminalControl.TerminalGrid.MarkCellDirty(wroteRow, wroteCol);
+            if (ch == '\x1B') return;
 
-            _dirtyCount++;
+            if (_inSystemLine)
+            {
+                if ((uint)wroteCol >= (uint)Cols) return;
+                _systemLineBuffer[wroteCol] = new ScreenCell
+                {
+                    Char = ch,
+                    //Foreground = CurrentStyle.Background,
+                    //Background = CurrentStyle.Foreground,
+                    Style = CurrentStyle.Clone()
+                };
+                CursorCol = Math.Min(wroteCol + 1, Cols - 1);
+                _caretController.MoveCaret(0, 1);
+            }
+            else
+            {
+                if ((uint)wroteRow >= (uint)Rows || (uint)wroteCol >= (uint)Cols) return;
+
+                _mainBuffer[wroteRow, wroteCol] = new ScreenCell
+                {
+                    Char = ch,
+                    Foreground = Brushes.White,//CurrentStyle.ReverseVideo ? CurrentStyle.Background : CurrentStyle.Foreground,
+                    Background = Brushes.Black,//CurrentStyle.ReverseVideo ? CurrentStyle.Foreground : CurrentStyle.Background,
+                    Style = CurrentStyle.Clone()
+                };
+                _chars[wroteRow, wroteCol] = ch;
+                //this.LogDebug($"_mainBuffer [{wroteRow}, {wroteCol}] = '{_mainBuffer[wroteRow, wroteCol].Char}'");
+                //this.LogDebug($"_chars [{wroteRow}, {wroteCol}] = '{_chars[wroteRow, wroteCol]}'");
+
+                AdvanceCursor();
+            }
             _dirty = true;
-            if (_dirtyCount == 1) this.LogTrace("[BUFFER] First mutation since last flush");
-
-            //flushTrigger.OnCharWritten(); // ensure this only schedules if dirty and not already scheduled
+            //if (!_updating) BufferUpdated.Invoke();
         }
 
 
@@ -193,54 +173,42 @@ namespace Parser
             this.LogTrace($"[CURSOR] Pos=({CursorRow},{CursorCol})");
             CursorRow = Math.Clamp(row, 0, Rows - 1);
             CursorCol = Math.Clamp(col, 0, Cols - 1);
-            CursorMoved?.Invoke(CursorRow, CursorCol);
-            MarkDirty();
-            if (!_hasFlushed && row == 22 && col == 0)
-            {
-                //flushTrigger.ForceFlush("Initsekvens avslutad");
-                _hasFlushed = true;
-            }
-            //else flushTrigger.OnCursorMoved(CursorRow, CursorCol);
         }
 
         public void CarriageReturn()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
             CursorCol = 0;
-            MarkDirty();
             _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         public void LineFeed()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
             CursorRow++;
             if (CursorRow >= Rows)
             {
                 ScrollUp();
                 CursorRow = Rows - 1;
             }
-            MarkDirty();
             _caretController.MoveCaret(1, 0);
         }
 
         public void Backspace()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
             if (CursorCol > 0)
             {
                 CursorCol--;
-                MarkDirty();
             }
             _caretController.MoveCaret(0, -1);
         }
 
         public void Tab()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
             int nextStop = ((CursorCol / TabSize) + 1) * TabSize;
             CursorCol = Math.Min(nextStop, Cols - 1);
-            MarkDirty();
             _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
@@ -255,11 +223,9 @@ namespace Parser
 
             CursorRow = 0;
             CursorCol = 0;
-            MarkDirty();
             if (_caretController == null) return;
             _caretController.SetCaretPosition(CursorRow, CursorCol);
-            _dirtyCount++;
-            if (_dirtyCount == 1) this.LogTrace("[BUFFER] First mutation since last flush");
+            clearScreen = true;
         }
 
         public void ClearLine(int row)
@@ -270,12 +236,11 @@ namespace Parser
                 _chars[row, c] = ' ';
                 _mainBuffer[row, c].Style = new StyleInfo();
             }
-            MarkDirty();
         }
 
         private void AdvanceCursor()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
                 CursorCol++;
                 if (CursorCol >= Cols)
                 {
@@ -292,7 +257,7 @@ namespace Parser
 
         private void ScrollUp()
         {
-            if (_caretController == null) _caretController = terminalControl.caretController;
+            if (_caretController == null) _caretController = new CaretController();
             for (int r = 1; r < Rows; r++)
                 for (int c = 0; c < Cols; c++)
                 {
