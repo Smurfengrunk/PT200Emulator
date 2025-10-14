@@ -7,7 +7,7 @@ namespace Parser
     {
         void Feed(ReadOnlySpan<byte> data);
 
-        event Action<IReadOnlyList<TerminalAction>> ActionsReady;
+        //event Action<IReadOnlyList<TerminalAction>> ActionsReady;
         event Action<byte[]> DcsResponse;
 
         ScreenBuffer Screenbuffer { get; }

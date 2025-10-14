@@ -35,7 +35,7 @@ namespace PT200Emulator
             _parser = new TerminalParser(_basePath, _state, input, modeManager, _terminal);
             ConfigureLogging();
 
-            _parser.Screenbuffer.BufferUpdated += () => renderer.Render(_parser.Screenbuffer);
+            _parser.Screenbuffer.BufferUpdated += () => renderer.Render(_parser.Screenbuffer, _parser.inEmacs);
             _parser.DcsResponse += (bytes) => _stream.WriteAsync(bytes);
 
             Console.CancelKeyPress += (s, e) =>
@@ -66,7 +66,7 @@ namespace PT200Emulator
                 {
                     //Log.Logger.LogDebug($"[Program] Data Received: {bytes.Length} bytes");
                     _parser.Feed(bytes);
-                    renderer.Render(_parser.Screenbuffer); // temporary to validate rendering
+                    renderer.Render(_parser.Screenbuffer, _parser.inEmacs); // temporary to validate rendering
                 };
                 _ = _stream.StartReceiveLoop(rcts.Token);
             }

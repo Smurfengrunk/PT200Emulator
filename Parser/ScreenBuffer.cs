@@ -31,13 +31,14 @@ namespace Parser
         public struct ScreenCell
         {
             public char Char;
-            public int Foreground;
-            public int Background;
+            public Color Foreground;
+            public Color Background;
             public StyleInfo Style;
         }
 
         private ScreenCell[,] _mainBuffer;
         public readonly ScreenCell[] _systemLineBuffer;
+        public StyleInfo[,] ZoneAttributes {  get; private set; }
         public RowLockManager RowLocks { get; } = new();
         public StyleInfo CurrentStyle { get; set; } = new StyleInfo();
         public ScreenBuffer(int rows, int cols, string basePath)
@@ -45,6 +46,7 @@ namespace Parser
             _mainBuffer = new ScreenCell[rows, cols];
             _chars = new char[rows, cols];
             _systemLineBuffer = new ScreenCell[cols];
+            ZoneAttributes = new StyleInfo[rows, cols];
             for (int r = 0; r < rows; r++)
                 for (int c = 0; c < cols; c++)
                 {
@@ -130,6 +132,8 @@ namespace Parser
 
             var wroteRow = CursorRow;
             var wroteCol = CursorCol;
+            var cell = _mainBuffer[wroteRow, wroteCol];
+            var style = CurrentStyle.Clone();
 
             if (ch == '\x1B') return;
 
@@ -150,28 +154,29 @@ namespace Parser
             {
                 if ((uint)wroteRow >= (uint)Rows || (uint)wroteCol >= (uint)Cols) return;
 
-                _mainBuffer[wroteRow, wroteCol] = new ScreenCell
-                {
-                    Char = ch,
-                    Foreground = Brushes.White,//CurrentStyle.ReverseVideo ? CurrentStyle.Background : CurrentStyle.Foreground,
-                    Background = Brushes.Black,//CurrentStyle.ReverseVideo ? CurrentStyle.Foreground : CurrentStyle.Background,
-                    Style = CurrentStyle.Clone()
-                };
+                // om cellen redan har ReverseVideo från ett område, bevara det
+                if (cell.Style != null && cell.Style.ReverseVideo)
+                    style.ReverseVideo = true;
+
+                cell.Char = ch;
+                cell.Style = style;
+                cell.Foreground = style.ReverseVideo ? style.Background : style.Foreground;
+                cell.Background = style.ReverseVideo ? style.Foreground : style.Background;
+
+                _mainBuffer[wroteRow, wroteCol] = cell;
                 _chars[wroteRow, wroteCol] = ch;
-                //this.LogDebug($"_mainBuffer [{wroteRow}, {wroteCol}] = '{_mainBuffer[wroteRow, wroteCol].Char}'");
-                //this.LogDebug($"_chars [{wroteRow}, {wroteCol}] = '{_chars[wroteRow, wroteCol]}'");
 
                 AdvanceCursor();
             }
             _dirty = true;
-            //if (!_updating) BufferUpdated.Invoke();
+            if (!_updating) BufferUpdated.Invoke();
         }
 
 
         public void SetCursorPosition(int row, int col)
         {
-            CursorRow = Math.Clamp(row, 0, Rows - 1);
-            CursorCol = Math.Clamp(col, 0, Cols - 1);
+            CursorRow = Math.Clamp(row - 1, 0, Rows - 1);
+            CursorCol = Math.Clamp(col - 1, 0, Cols - 1);
             this.LogTrace($"[CURSOR] Pos=({CursorRow},{CursorCol})");
         }
 
@@ -326,8 +331,8 @@ namespace Parser
 
     public class StyleInfo
     {
-        public int Foreground { get; set; } = Brushes.LimeGreen;
-        public int Background { get; set; } = Brushes.Black;
+        public Color Foreground { get; set; } = Brushes.LimeGreen;
+        public Color Background { get; set; } = Brushes.Black;
 
         public bool Blink { get; set; } = false;
         public bool Bold { get; set; } = false;
@@ -363,7 +368,21 @@ namespace Parser
 
         public StyleInfo Clone()
         {
-            return (StyleInfo)MemberwiseClone();
+            return new StyleInfo
+            {
+                Foreground = new Color(Foreground.R, Foreground.G, Foreground.B, Foreground.Name),
+                Background = new Color(Background.R, Background.G, Background.B, Background.Name),
+                Blink = this.Blink,
+                Bold = this.Bold,
+                Underline = this.Underline,
+                ReverseVideo = this.ReverseVideo,
+                LowIntensity = this.LowIntensity,
+                StrikeThrough = this.StrikeThrough,
+                Transparent = this.Transparent,
+                VisualAttributeLock = this.VisualAttributeLock,
+                ColumnWidth = this.ColumnWidth,
+                RowHeight = this.RowHeight
+            };
         }
     }
 

@@ -17,6 +17,7 @@ namespace Parser
         private readonly PercentHandler percentHandler;
         private readonly OscHandler oscHandler;
         private readonly DollarCommandHandler dollarCommandHandler = new();
+        public bool inEmacs => escHandler.inEmacs;
         public ScreenBuffer Screenbuffer { get; private set; }
         private List<byte> dcsBuffer = new();
         private readonly TerminalState termState;
@@ -25,7 +26,7 @@ namespace Parser
         public CsiSequenceHandler _csiHandler { get; private set; }
         public VisualAttributeManager visualAttributeManager { get; private set; }
 
-        public event Action<IReadOnlyList<TerminalAction>> ActionsReady;
+        //public event Action<IReadOnlyList<TerminalAction>> ActionsReady;
         public event Action<byte[]> DcsResponse;
         public char Translate(byte code) => charTables.Translate(code);
         enum ParseState

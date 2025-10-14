@@ -84,13 +84,13 @@ namespace Parser
             _handlers = new(StringComparer.Ordinal)
             {
                 ["H"] = (p, t, b) => b.SetCursorPosition(
-                    ParseOrDefault(p.ElementAtOrDefault(0), 1),
-                    ParseOrDefault(p.ElementAtOrDefault(1), 1)
+                    ParseOrDefault(p.ElementAtOrDefault(0), 0),
+                    ParseOrDefault(p.ElementAtOrDefault(1), 0)
                 ),
 
                 ["Y"] = (p, t, b) => b.SetCursorPosition(
                     b.CursorCol,
-                    ParseOrDefault(p.ElementAtOrDefault(0), 1)
+                    ParseOrDefault(p.ElementAtOrDefault(0), 0)
                 ),
 
                 ["h"] = (p, t, b) =>
@@ -115,7 +115,10 @@ namespace Parser
                     }
                 },
 
-                ["m"] = (p, t, b) => _visualAttributeManager.HandleSGR(p, b, terminal),
+                ["m"] = (p, t, b) =>
+                {
+                    _visualAttributeManager.HandleSGR(p, b, terminal);
+                },
 
                 ["r"] = (p, t, b) =>
                 {
@@ -161,15 +164,15 @@ namespace Parser
             string key = $"{command}:{paramStr}";
             if (IsRowColumn(paramStr) && _definitions.TryGetValue($"{command}:row;column", out def))
             {
-                this.LogInformation($"[CSI] {def.Name} ␦ {paramStr} {def.Description}");
+                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
             }
             else if (IsNumericList(paramStr) && _definitions.TryGetValue($"{command}:n1;n2;...", out def))
             {
-                this.LogInformation($"[CSI] {def.Name} ␦ {paramStr} {def.Description}");
+                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
             }
             else if (paramStr.All(char.IsDigit) && _definitions.TryGetValue($"{command}:>n", out def))
             {
-                this.LogInformation($"[CSI] {def.Name} ␦ {paramStr} {def.Description}");
+                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
             }
 
             if (_handlers.TryGetValue(command, out var handler))

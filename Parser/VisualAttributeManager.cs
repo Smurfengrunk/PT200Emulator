@@ -10,23 +10,38 @@ namespace Parser
 {
     public class VisualAttributeManager
     {
-        // Här kan du hålla nuvarande attribut för hela displayen
-        public VisualAttributes CurrentAttributes { get; private set; } = new();
 
         public void ChangeDisplayAttributes(int scope, string[] parameters, ScreenBuffer buffer, TerminalState terminal)
         {
             // Uppdatera aktuell stil
-            HandleSGR(parameters, buffer, terminal);
+            if (parameters.Length > 0) HandleSGR(parameters, buffer, terminal);
 
             // Måla om området med den nya stilen
+            this.LogDebug($"[ChangeDisplayAttributes] ApplyStyleToScope({scope}, {buffer} -> reversevideo = {buffer.CurrentStyle.ReverseVideo})");
             ApplyStyleToScope(scope, buffer);
         }
 
         public void ApplyStyleToScope(int scope, ScreenBuffer buffer)
         {
-            var style = buffer.CurrentStyle;
+            var style = buffer.CurrentStyle.Clone();
 
+            (int startRow, int startCol, int endRow, int endCol) = CalculateScope(scope, buffer);
+
+            for (int row = startRow; row <= endRow; row++)
+            {
+                for (int col = (row == startRow ? startCol : 0);
+                         col <= (row == endRow ? endCol : buffer.Cols - 1);
+                         col++)
+                {
+                    buffer.ZoneAttributes[row, col] = style;
+                }
+            }
+        }
+
+        private (int, int, int, int) CalculateScope(int scope, ScreenBuffer buffer)
+        {
             int startRow, startCol, endRow, endCol;
+
             switch (scope)
             {
                 case 0: // från cursor till slutet
@@ -34,12 +49,14 @@ namespace Parser
                     startCol = buffer.CursorCol;
                     endRow = buffer.Rows - 1;
                     endCol = buffer.Cols - 1;
+                    this.LogDebug($"[CalculateScope] Scope = 0, startRow = {startRow}, startCol = {startCol}, endRow = {endRow}, endCol = {endCol}");
                     break;
                 case 1: // från början till cursor
                     startRow = 0;
                     startCol = 0;
                     endRow = buffer.CursorRow;
                     endCol = buffer.CursorCol;
+                    this.LogDebug($"[CalculateScope] Scope = 1, startRow = {startRow}, startCol = {startCol}, endRow = {endRow}, endCol = {endCol}");
                     break;
                 case 2: // hela skärmen
                 default:
@@ -47,36 +64,10 @@ namespace Parser
                     startCol = 0;
                     endRow = buffer.Rows - 1;
                     endCol = buffer.Cols - 1;
+                    this.LogDebug($"[CalculateScope] Scope = 2, startRow = {startRow}, startCol = {startCol}, endRow = {endRow}, endCol = {endCol}");
                     break;
             }
-
-            for (int row = startRow; row <= endRow; row++)
-            {
-                int colStart = (row == startRow) ? startCol : 0;
-                int colEnd = (row == endRow) ? endCol : buffer.Cols - 1;
-
-                for (int col = colStart; col <= colEnd; col++)
-                {
-                    // Gör FG/BG-swap om ReverseVideo är aktiv
-                    var fg = style.Foreground;
-                    var bg = style.Background;
-                    if (style.ReverseVideo)
-                        (fg, bg) = (bg, fg);
-
-                    // Klona stilen och sätt rätt färger
-                    var newStyle = style.Clone();
-                    newStyle.Foreground = fg;
-                    newStyle.Background = bg;
-
-                    // Uppdatera cellen i _mainBuffer
-                    var cell = buffer.GetCell(row, col);
-                    cell.Style = newStyle;
-                    buffer.SetCell(row, col, cell);
-
-                    // Uppdatera även _styles[,] så RenderFromBuffer ser ändringen
-                    buffer.SetStyle(row, col, newStyle);
-                }
-            }
+            return (startRow, startCol, endRow,endCol);
         }
 
         public void HandleSGR(string[] parameters, ScreenBuffer buffer, TerminalState terminal)

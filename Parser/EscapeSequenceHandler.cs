@@ -65,7 +65,8 @@ namespace Parser
                     break;
                 case "`": // ESC `
                     inEmacs = true;
-                    this.LogDebug("[ESC] ESC ` – Disable Manual Input");
+                    this.LogDebug($"[ESC] ESC ` – Disable Manual Input, Emacs mode = {inEmacs}");
+                    //this.LogDebug("[ESC] ESC ` – Disable Manual Input");
                     ManualInputEnabled = false;
                     break;
 
@@ -76,7 +77,7 @@ namespace Parser
                 case "0":
                     this.LogDebug($"Escape sequence {sequence}");
                     byte[] tmp = Encoding.ASCII.GetBytes(sequence);
-                    _commandDecoder.HandleEscO(tmp[0], tmp[1], tmp[2]);
+                    _commandDecoder.HandleEscO(tmp[1], tmp[2]);
                     break;
                 case "?":
                     _buffer.ClearScreen(); // Rensa hela skärmen
@@ -97,7 +98,7 @@ namespace Parser
             _screen = screen;
         }
 
-        public void HandleEscO(byte rowByte, byte colByte, byte symbol)
+        public void HandleEscO(byte rowByte, byte colByte)
         {
             int row = rowByte == 0 ? 1 : rowByte - 0x20;
             int col = colByte == 0 ? 1 : colByte - 0x20;
@@ -120,10 +121,7 @@ namespace Parser
                 return;
             }
 
-            this.LogDebug($"[ESCO] Komprimerad cursorflytt till ({row},{col}, tecken att lägga in är {(char)symbol})");
-
             _screen.SetCursorPosition(row - 1, col - 1); // 0-indexerat internt
-            _screen.WriteChar((char)symbol);
         }
     }
 }

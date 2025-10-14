@@ -11,7 +11,7 @@ namespace Parser
 
     public class DcsSequenceHandler
     {
-        public event Action<string, IReadOnlyList<TerminalAction>> ActionsReady;
+        //public event Action<string, IReadOnlyList<TerminalAction>> ActionsReady;
         public event Action<byte[]> OnDcsResponse;
         public event Action<string> OnStatusUpdate;
 

@@ -99,7 +99,7 @@ namespace Util
         public DisplayType Display { get; set; } = DisplayType.Green;
         public bool PrintMode { get; set; }
 
-        public int DisplayTypeToBrush(DisplayType display)
+        public Color DisplayTypeToBrush(DisplayType display)
         {
             switch (display)
             {
