@@ -1,18 +1,14 @@
-﻿using ConsoleTest;
+﻿using InputHandler;
 using Parser;
 using Rendering;
 using Serilog;
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Transport;
-using Util;
 
 namespace PT200Emulator
 {
+#pragma warning disable CS8618
     internal class Program
     {
         static IByteStream _stream = new TelnetByteStream();
@@ -21,40 +17,40 @@ namespace PT200Emulator
         private static TerminalState _state = new();
         private static DataPathProvider _basePath = new(AppDomain.CurrentDomain.BaseDirectory);
         private static LocalizationProvider _localization = new();
-        private static ModeManager modeManager = new(_localization);
+        private static ModeManager modeManager = new ModeManager(_localization);
         private static TerminalControl _terminal = new();
-#pragma warning disable CS8618
         private static TerminalParser _parser;
-#pragma warning restore CS8618
         private static ConsoleRenderer renderer = new();
+        private static IInputMapper _mapper;
         private static async Task Main(string[] args)
         {
             _state.screenFormat = TerminalState.ScreenFormat.S80x24;
             _state.SetScreenFormat();
-            var input = new ConsoleInputHandler(_stream);
-            _parser = new TerminalParser(_basePath, _state, input, modeManager, _terminal);
+            _parser = new TerminalParser(_basePath, _state, modeManager, _terminal);
+            _mapper = new InputHandler.InputHandler().inputMapper;
+            var adapter = new ConsoleAdapter(_mapper, bytes => _stream.WriteAsync(bytes));
             ConfigureLogging();
 
             _parser.Screenbuffer.BufferUpdated += () => renderer.Render(_parser.Screenbuffer, _parser.inEmacs);
             _parser.DcsResponse += (bytes) => _stream.WriteAsync(bytes);
+            _parser.Screenbuffer.Scrolled += () => renderer.ForceFullRender();
+            _parser.Screenbuffer.AttachCaretController(new ConsoleCaretController());
 
-            Console.CancelKeyPress += (s, e) =>
+            _stream.Disconnected += () =>
             {
-                e.Cancel = true;
-                cts.Cancel();
+                Log.Information("Servern kopplade ner, stänger programmet.");
+                _ = ShutdownAsync();
             };
 
             if (!await Connect(cts.Token)) return;
-
-            // Starta inmatningsloop i bakgrunden
-            _ = input.StartAsync(rcts.Token);
+            adapter.Run();
 
             Console.WriteLine("Tryck Ctrl+C för att avsluta.");
             try
             {
                 await Task.Delay(Timeout.Infinite, cts.Token);
             }
-            catch (TaskCanceledException) { }
+            catch (TaskCanceledException) { _ = ShutdownAsync(); }
         }
 
         public static async Task<bool> Connect(CancellationToken cancellationToken, string host = "localhost", int port = 2323)
@@ -62,23 +58,14 @@ namespace PT200Emulator
             try
             {
                 await _stream.ConnectAsync(host, port, cts.Token);
-                _stream.DataReceived += bytes =>
-                {
-                    //Log.Logger.LogDebug($"[Program] Data Received: {bytes.Length} bytes");
-                    _parser.Feed(bytes);
-                    renderer.Render(_parser.Screenbuffer, _parser.inEmacs); // temporary to validate rendering
-                };
+                _stream.DataReceived += bytes => _parser.Feed(bytes);
                 _ = _stream.StartReceiveLoop(rcts.Token);
             }
             catch (Exception ex)
             {
-                Log.Logger.LogErr($"Anslutning misslyckades: {ex}");
+                Log.Logger.Error($"Anslutning misslyckades: {ex}");
                 return false;
             }
-
-            // säkerställ att vi inte kopplar samma event flera gånger
-
-            Log.Logger.Information($"Ansluten till {host}:{port}");
             return true;
         }
 
@@ -93,7 +80,7 @@ namespace PT200Emulator
             }
             catch (Exception ex)
             {
-                Log.Logger.LogErr($"Frånkoppling misslyckades: {ex}");
+                Log.Logger.Error($"Frånkoppling misslyckades: {ex}");
             }
         }
 
@@ -110,7 +97,7 @@ namespace PT200Emulator
             }
             catch (Exception ex)
             {
-                Log.Logger.LogErr($"Sändning misslyckades: {ex}");
+                Log.Logger.Error($"Sändning misslyckades: {ex}");
                 return false;
             }
         }
@@ -120,10 +107,8 @@ namespace PT200Emulator
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Debug()    // VS Debug‑fönstret
-                //.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}") // parallellt till konsolen
+                                    //.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}") // parallellt till konsolen
                 .CreateLogger();
-
-
         }
 
         public static async Task ShutdownAsync()
@@ -138,5 +123,6 @@ namespace PT200Emulator
             cts.Cancel();
             Environment.Exit(0);
         }
+#pragma warning restore CS8618
     }
 }

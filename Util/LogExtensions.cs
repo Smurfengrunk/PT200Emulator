@@ -1,9 +1,4 @@
 ﻿using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Util
 {
@@ -22,6 +17,6 @@ namespace Util
             => Log.Error(message, args);
 
         public static void LogTrace(this object _, string message, params object[] args)
-            => Log.Fatal(message, args);
+            => Log.Verbose(message, args);
     }
 }

@@ -1,0 +1,144 @@
+{
+    "EscDollarCommand": [
+        {
+            "Sequence": "$0",
+            "Command": "Set GO ASCII"
+        },
+        {
+            "Sequence": "$1",
+            "Command": "Set G1 ASCII"
+        },
+        {
+            "Sequence": "$2",
+            "Command": "Set GO Alternate Set"
+        },
+        {
+            "Sequence": "$3",
+            "Command": "Set G1 Alternate Set"
+        },
+        {
+            "Sequence": "$4",
+            "Command": "Start DSC Data"
+        },
+        {
+            "Sequence": "$5",
+            "Command": "End DSC Data"
+        },
+        {
+            "Sequence": "$A",
+            "Command": "Cursor Relative Home"
+        },
+        {
+            "Sequence": "$B",
+            "Command": "Cursor Absolute Home"
+        },
+        {
+            "Sequence": "$C",
+            "Command": "Field Entry Check"
+        },
+        {
+            "Sequence": "$E",
+            "Command": "Blank Screen"
+        },
+        {
+            "Sequence": "$F",
+            "Command": "Soft Keyboard Lock"
+        },
+        {
+            "Sequence": "$G",
+            "Command": "Soft Keyboard Unlock"
+        },
+        {
+            "Sequence": "$H",
+            "Command": "Escape Key Disable"
+        },
+        {
+            "Sequence": "$I",
+            "Command": "Escape Key Enable"
+        },
+        {
+            "Sequence": "$J",
+            "Command": "Reset Modified Tags"
+        },
+        {
+            "Sequence": "$K",
+            "Command": "Clear Selected Areas"
+        },
+        {
+            "Sequence": "$L",
+            "Command": "Start Logical Attributes"
+        },
+        {
+            "Sequence": "$M",
+            "Command": "End Logical Attributes"
+        },
+        {
+            "Sequence": "$N",
+            "Command": "Insert Cursor"
+        },
+        {
+            "Sequence": "$O",
+            "Command": "Save Cursor and Attributes"
+        },
+        {
+            "Sequence": "$P",
+            "Command": "Unblank Screen"
+        },
+        {
+            "Sequence": "$Q",
+            "Command": "Restore Cursor and Attributes"
+        },
+        {
+            "Sequence": "$R",
+            "Command": "Reset Inhibit Cursor"
+        },
+        {
+            "Sequence": "$S",
+            "Command": "Set Inhibit Cursor"
+        },
+        {
+            "Sequence": "$T",
+            "Command": "System Line Reset"
+        },
+        {
+            "Sequence": "$U",
+            "Command": "System Line Display"
+        },
+        {
+            "Sequence": "$V",
+            "Command": "System Line Set"
+        },
+        {
+            "Sequence": "$W",
+            "Command": "Scroll Inhibit Reset"
+        },
+        {
+            "Sequence": "$X",
+            "Command": "Scroll Inhibit Set"
+        },
+        {
+            "Sequence": "$Z",
+            "Command": "Display Revision"
+        },
+        {
+            "Sequence": "$a",
+            "Command": "Page Up"
+        },
+        {
+            "Sequence": "$b",
+            "Command": "Page Down"
+        },
+        {
+            "Sequence": "$d",
+            "Command": "DSC DUP Function"
+        },
+        {
+            "Sequence": "$e",
+            "Command": "Cursor Select Functionality"
+        },
+        {
+            "Sequence": "$f",
+            "Command": "Cursor Select"
+        }
+    ]
+}

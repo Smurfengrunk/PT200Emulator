@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 
-namespace Util
+namespace Parser
 {
     public class TerminalState
     {
@@ -99,20 +95,20 @@ namespace Util
         public DisplayType Display { get; set; } = DisplayType.Green;
         public bool PrintMode { get; set; }
 
-        public Color DisplayTypeToBrush(DisplayType display)
+        public StyleInfo.Color DisplayTypeToBrush(DisplayType display)
         {
             switch (display)
             {
                 case DisplayType.Green:
-                    return Brushes.LimeGreen;
+                    return StyleInfo.Color.Green;
                 case DisplayType.White:
-                    return Brushes.White;
+                    return StyleInfo.Color.White;
                 case DisplayType.Amber:
-                    return Brushes.Orange;
+                    return StyleInfo.Color.DarkYellow;
                 case DisplayType.Blue:
-                    return Brushes.Blue;
+                    return StyleInfo.Color.Blue;
                 default:
-                    return Brushes.White;
+                    return StyleInfo.Color.White;
             }
         }
 

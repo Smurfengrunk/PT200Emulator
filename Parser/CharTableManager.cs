@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using Util;
-using Serilog;
+﻿using System.Text.Json;
 
 namespace Parser
 {
@@ -14,7 +8,7 @@ namespace Parser
     /// GL = G0 eller G1 beroende på activeGL, GR = alltid G1.
     /// </summary>
     public class CharTableManager
-    {        
+    {
         private readonly Dictionary<byte, char> _asciiTable;
         private readonly Dictionary<byte, char> _graphicsTable;
 
@@ -58,7 +52,6 @@ namespace Parser
             if (activeGL != 0)
             {
                 activeGL = 0;
-                this.LogDebug("[CharTableManager] GL -> G0 (ASCII)");
             }
         }
 
@@ -70,7 +63,6 @@ namespace Parser
             if (activeGL != 1)
             {
                 activeGL = 1;
-                this.LogDebug("[CharTableManager] GL -> G1 (Graphics)");
             }
         }
 
@@ -79,8 +71,6 @@ namespace Parser
         /// </summary>
         public char Translate(byte code)
         {
-            //this.LogDebug($"SPACE: activeGL={activeGL}, table={(activeGL == 0 ? "G0" : "G1")}");
-            //this.LogDebug($"G0[0x20] = '{_g0[0x20]}' (U+{(int)_g0[0x20]:X4})");
             // GL-området (0x21–0x7E)
             if (code >= 0x20 && code <= 0x7E)
                 return ((activeGL == 0) ? _g0 : _g1).GetValueOrDefault(code, '?');

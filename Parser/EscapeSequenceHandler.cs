@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using Util;
+﻿using System.Text;
 
 namespace Parser
 {
@@ -16,8 +14,9 @@ namespace Parser
         private CompressedCommandDecoder _commandDecoder;
 
         public bool ManualInputEnabled { get; private set; }
-        public bool inEmacs {  get; private set; }
+        public bool inEmacs { get; private set; }
 
+#pragma warning disable CS0219
         public EscapeSequenceHandler(CharTableManager charTables, ScreenBuffer buffer, TerminalControl terminal, TerminalState termstate)
         {
             this.charTableManager = charTables ?? throw new ArgumentNullException(nameof(charTables));
@@ -26,13 +25,14 @@ namespace Parser
             _termState = termstate;
             _commandDecoder = new CompressedCommandDecoder(buffer);
         }
+#pragma warning restore CS0219
 
         /// <summary>
         /// Tar emot en ESC-sekvens (utan själva ESC-tecknet) och utför rätt åtgärd.
         /// </summary>
         public void Handle(string sequence)
         {
-            this.LogDebug($"[Handle] Escape sequence Esc {sequence}, HEX {BitConverter.ToString(sequence.Select(c => (byte)c).ToArray())}");
+            this.LogDebug($"[EscapeSequenceHandler] sequence = {sequence}");
             switch (sequence.Substring(0, 1))
             {
                 case "$":
@@ -53,10 +53,17 @@ namespace Parser
                         case "B":
                             _buffer.SetCursorPosition(0, 0);
                             break;
-                        case "O": // Save cursor and attributes
-                        case "Q": // restore cursor and attributes
+                        case "F":
+                            ManualInputEnabled = false;
+                            break;
                         case "G":
-                            this.LogDebug($"[Handle] Esc {sequence} ignorerad");
+                            ManualInputEnabled = true;
+                            break;
+                        case "O": // Save cursor and attributes
+                            _buffer.setCA();
+                            break;
+                        case "Q": // restore cursor and attributes
+                            _buffer.getCA();
                             break;
                         default:
                             this.LogWarning($"Okänd ESC $‑kod: {sequence:X2}");
@@ -65,25 +72,19 @@ namespace Parser
                     break;
                 case "`": // ESC `
                     inEmacs = true;
-                    this.LogDebug($"[ESC] ESC ` – Disable Manual Input, Emacs mode = {inEmacs}");
-                    //this.LogDebug("[ESC] ESC ` – Disable Manual Input");
                     ManualInputEnabled = false;
                     break;
 
                 case "b": // ESC b
-                    this.LogDebug("[ESC] ESC b – Enable Manual Input");
                     ManualInputEnabled = true;
                     break;
                 case "0":
-                    this.LogDebug($"Escape sequence {sequence}");
                     byte[] tmp = Encoding.ASCII.GetBytes(sequence);
                     _commandDecoder.HandleEscO(tmp[1], tmp[2]);
                     break;
                 case "?":
                     _buffer.ClearScreen(); // Rensa hela skärmen
                     _buffer.CurrentStyle.Reset(); // Återställ stil
-                    _buffer.SetCursorPosition(0, 0); // Återställ cursor
-                    this.LogDebug("[ESC] ESC ? → Clear screen + reset");
                     break;
             }
         }
@@ -100,8 +101,8 @@ namespace Parser
 
         public void HandleEscO(byte rowByte, byte colByte)
         {
-            int row = rowByte == 0 ? 1 : rowByte - 0x20;
-            int col = colByte == 0 ? 1 : colByte - 0x20;
+            int row = rowByte - 0x20; // ger 1–48
+            int col = colByte - 0x20; // ger 1–94
 
             if (row < 1 || row > 48 || col < 1 || col > 94)
             {
@@ -121,7 +122,8 @@ namespace Parser
                 return;
             }
 
-            _screen.SetCursorPosition(row - 1, col - 1); // 0-indexerat internt
+            // justera här om SetCursorPosition förväntar sig 0‑index
+            _screen.SetCursorPosition(row, col);
         }
     }
 }

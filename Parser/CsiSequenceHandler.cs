@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using Serilog;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Serilog;
-using Util;
 
 namespace Parser
 {
@@ -29,7 +21,7 @@ namespace Parser
 
         public void Handle(char finalChar, string sequence, TerminalState terminal, ScreenBuffer buffer, VisualAttributeManager visualAttributeManager)
         {
-            this.LogTrace($"[CSI] Sekvens mottagen: ESC[{sequence}");
+            //this.LogDebug($"[CSI] Sekvens mottagen: ESC[{sequence}");
             paramStr = string.Empty;
             parameters = new string[0];
             // Exempel: "12;24H"
@@ -42,13 +34,12 @@ namespace Parser
             if (table.TryHandle(finalChar, command, paramStr, out parameters, terminal, buffer, out var def))
             {
                 if (def != null) this.LogDebug($"[CSI] {def.Description} → {string.Join(", ", parameters)}");
-                else if (isPrivate) this.LogDebug("[CSI] Privat kommando");
-                else this.LogDebug("[CSI] CsiCommandTable not initialized");
+                else this.LogWarning($"[Handler] ESC[{paramStr}{command} är inte implementerad");
                 // Här kan du trigga en TerminalAction eller uppdatera TerminalState
             }
             else
             {
-                this.LogWarning($"[CsiSequenceHandler] Okänd sekvens ESC[{command}:{paramStr}");
+                this.LogWarning($"[CsiSequenceHandler] Okänd sekvens ESC[{paramStr}{command}");
             }
         }
     }
@@ -56,7 +47,7 @@ namespace Parser
     public class CsiCommandTable
     {
         // Metadata från JSON – nyckel = kommando, värde = definition
-        private readonly Dictionary<string, CsiCommandDefinition> _definitions;
+        internal readonly Dictionary<string, CsiCommandDefinition> _definitions;
 
         // Handlers för exekvering – nyckel = kommando, värde = Action
         private readonly Dictionary<string, Action<string[], TerminalState, ScreenBuffer>> _handlers;
@@ -80,6 +71,7 @@ namespace Parser
                 d => d,
                 StringComparer.Ordinal
             );
+
             // Bygg handler-tabellen
             _handlers = new(StringComparer.Ordinal)
             {
@@ -125,6 +117,12 @@ namespace Parser
                     // PT200 CVD – Change Visual Attributes of Display
                     int scope = ParseOrDefault(p.ElementAtOrDefault(0), 2);
                     _visualAttributeManager.ChangeDisplayAttributes(scope, p.Skip(1).ToArray(), buffer, terminal);
+                },
+                ["K"] = (p, t, b) =>
+                {
+                    // PT200 Erase line command: 0 -> Cursor to EOL, 1 -> BOL to Cursor, 2 -> Entire line
+                    // Current implententation supports only 0
+                    b.ClearLine(ParseOrDefault(p.ElementAtOrDefault(0), 0));
                 }
             };
         }
@@ -159,20 +157,44 @@ namespace Parser
         public bool TryHandle(char finalChar, string command, string paramStr, out string[] parameters, TerminalState terminal, ScreenBuffer buffer, out CsiCommandDefinition def)
         {
             def = null;
-            var cmd = finalChar.ToString(); // t.ex. "h"
             parameters = (string.IsNullOrEmpty(paramStr)) ? Array.Empty<string>() : paramStr.Split(';').Select(p => p.Trim()).ToArray();
-            string key = $"{command}:{paramStr}";
+
             if (IsRowColumn(paramStr) && _definitions.TryGetValue($"{command}:row;column", out def))
             {
-                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
+                this.LogInformation($"[TryGet] {def.Name} -> {paramStr} {def.Description}, def={def.Name}");
             }
             else if (IsNumericList(paramStr) && _definitions.TryGetValue($"{command}:n1;n2;...", out def))
             {
-                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
+                this.LogInformation($"[TryGet] {def.Name} -> {paramStr} {def.Description}, def={def.Name}");
             }
-            else if (paramStr.All(char.IsDigit) && _definitions.TryGetValue($"{command}:>n", out def))
+            else if (paramStr.StartsWith(">"))
             {
-                this.LogInformation($"[CSI] {def.Name} -> {paramStr} {def.Description}");
+                var parts = paramStr.Split(';');
+
+                if (parts.Length == 1 && parts[0].Length > 1 && parts[0][0] == '>' && parts[0].Substring(1).All(char.IsDigit))
+                {
+                    // Single parameter: >n eller >nn...
+                    var digits = parts[0].Substring(1);
+
+                    string key = $"{command}:>n";
+
+                    if (_definitions.TryGetValue(key, out def))
+                    {
+                        this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}");
+                    }
+                }
+                else if (parts.All(p => p.Length > 1 && p[0] == '>' && p.Substring(1).All(char.IsDigit)))
+                {
+                    // Lista >n;>nn;>nnn...
+                    if (_definitions.TryGetValue($"{command}:>n1;>n2;...", out def))
+                    {
+                        this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}");
+                    }
+                }
+            }
+            else if (paramStr.All(char.IsDigit) && _definitions.TryGetValue($"{command}:n", out def))
+            {
+                if (def != null) this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}, def={def.Name}");
             }
 
             if (_handlers.TryGetValue(command, out var handler))
@@ -180,10 +202,7 @@ namespace Parser
                 handler(parameters, terminal, buffer);
                 return true;
             }
-            else
-            {
-                this.LogDebug($"[CSI] Okänt kommando {cmd} med parametrar {paramStr}");
-            }
+
             if (def == null && _definitions.TryGetValue(command, out var fallback))
                 def = fallback;
             return false;

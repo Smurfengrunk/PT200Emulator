@@ -1,5 +1,4 @@
-﻿using System.IO;
-public interface IDataPathProvider
+﻿public interface IDataPathProvider
 {
     string BasePath { get; }
     string CharTablesPath { get; }

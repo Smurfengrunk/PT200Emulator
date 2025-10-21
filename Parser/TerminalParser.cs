@@ -1,12 +1,5 @@
-﻿using InputHandler;
-using Parser;
-using System;
-using System.IO; // Viktigt för Path
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
-using Transport;
-using Util;
 
 namespace Parser
 {
@@ -43,10 +36,9 @@ namespace Parser
         }
         private ParseState state = ParseState.Normal;
         private readonly StringBuilder seqBuffer = new();
-        private readonly IInputHandler _controller;
         private readonly Dictionary<string, CsiCommandDefinition> _definitions;
 
-        public TerminalParser(DataPathProvider paths, TerminalState state, IInputHandler controller, ModeManager modeManager, TerminalControl terminal)
+        public TerminalParser(DataPathProvider paths, TerminalState state, ModeManager modeManager, TerminalControl terminal)
         {
             var g0Path = Path.Combine(paths.CharTablesPath, "G0.json");
             var g1Path = Path.Combine(paths.CharTablesPath, "G1.json");
@@ -66,7 +58,6 @@ namespace Parser
                 StringComparer.Ordinal
             );
             this.termState = state ?? throw new ArgumentNullException(nameof(state));
-            _controller = controller;
             visualAttributeManager = new VisualAttributeManager();
 
             charTables = new CharTableManager(g0Path, g1Path);
@@ -96,17 +87,17 @@ namespace Parser
             seqBuffer.Clear();
         }
 
-         /// <summary>
-         /// Tar emot inkommande bytes och tolkar dem.
-         /// </summary>
-         /// 
+        /// <summary>
+        /// Tar emot inkommande bytes och tolkar dem.
+        /// </summary>
+        /// 
         public void Feed(byte[] data) => Feed(data.AsSpan());
         public void Feed(ReadOnlySpan<byte> data)
         {
             if (Screenbuffer != null)
             {
                 int previewLength = Math.Min(20, data.Length);
-                string s_data = Encoding.UTF8.GetString(data);
+                string s_data = Encoding.ASCII.GetString(data);
 
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -130,19 +121,17 @@ namespace Parser
                                     {
                                         seqBuffer.Append((char)b);
                                         Screenbuffer.WriteChar((char)b);
-                                        if (escHandler.inEmacs) this.LogDebug($"{(char)b}");
                                         break;
                                     }
                             }
                             break;
 
                         case ParseState.Escape:
-                            
+
                             if (b == '[')
                             {
                                 state = ParseState.CSI;
                                 seqBuffer.Clear();
-                                //seqBuffer.Append((char)b);
                             }
                             else if (b == ']')
                             {
@@ -157,14 +146,11 @@ namespace Parser
                             }
                             else if (b == '$')
                             {
-                                //this.LogTrace($"[Feed Esc] Escape {(char)b} detekterat");
                                 state = ParseState.EscDollar;
-                                //seqBuffer.Clear();
                                 seqBuffer.Append((char)b);
                             }
                             else if (b == '0')
                             {
-                                //this.LogTrace($"[Feed Esc] Escape {(char)b} detekterat");
                                 state = ParseState.Esc0;
                                 seqBuffer.Append((char)b);
                             }
@@ -177,7 +163,7 @@ namespace Parser
                             break;
 
                         case ParseState.CSI:
-                            
+
                             seqBuffer.Append((char)b);
                             if (b >= 0x40 && b <= 0x7E)
                             {
@@ -188,7 +174,7 @@ namespace Parser
                             break;
 
                         case ParseState.OSC:
-                            
+
                             seqBuffer.Append((char)b);
                             if (b == 0x07 || (seqBuffer.Length >= 2 && seqBuffer[^2] == 0x1B && seqBuffer[^1] == '\\'))
                             {
@@ -199,7 +185,7 @@ namespace Parser
                             break;
 
                         case ParseState.DCS:
-                            
+
                             // Leta efter ESC \
                             if (b == 0x1B && i + 1 < data.Length && data[i + 1] == 0x5C)
                             {
@@ -216,7 +202,7 @@ namespace Parser
                             break;
 
                         case ParseState.EscDollar:
-                            
+
                             seqBuffer.Append((char)b);
                             //this.LogTrace($"[Feed EscDollar] Escape {seqBuffer} detekterat");
 
@@ -229,7 +215,7 @@ namespace Parser
                             break;
 
                         case ParseState.Esc0:
-                            
+
                             seqBuffer.Append((char)b);
                             this.LogTrace($"[Feed Esc0] Escape {seqBuffer} detekterat");
 

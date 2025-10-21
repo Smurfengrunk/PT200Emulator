@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Util;
-using static System.Net.Mime.MediaTypeNames;
+﻿
+using Parser;
 
 namespace Parser
 {
+#pragma warning disable CS8632
     public class ScreenBuffer
     {
         private const int TabSize = 8;
         public event Action BufferUpdated;
+        public event Action Scrolled;
         private bool _inSystemLine = false;
         private readonly TimeSpan _idleDelay = TimeSpan.FromMilliseconds(8);
-        private CaretController _caretController;
+        private ICaretController? _caretController;
         private CharTableManager charTableManager;
         private char[,] _chars;
         public int Rows => _chars.GetLength(0);
@@ -24,6 +20,7 @@ namespace Parser
         public int CursorRow { get; private set; }
         public int CursorCol { get; private set; }
         public bool clearScreen { get; private set; } = false;
+        public bool forceRedraw { get; set; } = false;
         public void ScreenCleared() => clearScreen = false;
         private bool _updating;
         private bool _dirty;
@@ -31,14 +28,24 @@ namespace Parser
         public struct ScreenCell
         {
             public char Char;
-            public Color Foreground;
-            public Color Background;
+            public StyleInfo.Color Foreground;
+            public StyleInfo.Color Background;
             public StyleInfo Style;
         }
 
+        public struct SCA // Save Cursor and Attributes
+        {
+            public int row, col;
+            public ScreenCell[,] cell;
+            //relative screen position?
+            //value of SGR command?
+        }
+        SCA sca;
+
+
         private ScreenCell[,] _mainBuffer;
         public readonly ScreenCell[] _systemLineBuffer;
-        public StyleInfo[,] ZoneAttributes {  get; private set; }
+        public StyleInfo[,] ZoneAttributes { get; private set; }
         public RowLockManager RowLocks { get; } = new();
         public StyleInfo CurrentStyle { get; set; } = new StyleInfo();
         public ScreenBuffer(int rows, int cols, string basePath)
@@ -65,32 +72,37 @@ namespace Parser
         {
             _mainBuffer = new ScreenCell[rows, cols];
 
-                if (rows <= 0 || cols <= 0) throw new ArgumentOutOfRangeException();
+            if (rows <= 0 || cols <= 0) throw new ArgumentOutOfRangeException();
 
-                var newChars = new char[rows, cols];
-                var newStyles = new StyleInfo[rows, cols];
+            var newChars = new char[rows, cols];
+            var newStyles = new StyleInfo[rows, cols];
 
-                // Kopiera så mycket som får plats från gamla bufferten
-                for (int r = 0; r < Math.Min(Rows, rows); r++)
-                    for (int c = 0; c < Math.Min(Cols, cols); c++)
-                    {
-                        newChars[r, c] = _chars[r, c];
-                        newStyles[r, c] = _mainBuffer[r, c].Style;
-                    }
-                // Kopiera så mycket som får plats från gamla bufferten
-                for (int r = 0; r < rows; r++)
-                    for (int c = 0; c < cols; c++)
-                    {
-                        if (newStyles[r, c] == null)
-                            _mainBuffer[r, c].Style = new StyleInfo();
-                    }
+            // Kopiera så mycket som får plats från gamla bufferten
+            for (int r = 0; r < Math.Min(Rows, rows); r++)
+                for (int c = 0; c < Math.Min(Cols, cols); c++)
+                {
+                    newChars[r, c] = _chars[r, c];
+                    newStyles[r, c] = _mainBuffer[r, c].Style;
+                }
+            // Kopiera så mycket som får plats från gamla bufferten
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                {
+                    if (newStyles[r, c] == null)
+                        _mainBuffer[r, c].Style = new StyleInfo();
+                }
 
-                _chars = newChars;
+            _chars = newChars;
 
-                CursorRow = Math.Min(CursorRow, rows - 1);
-                CursorCol = Math.Min(CursorCol, cols - 1);
+            CursorRow = Math.Min(CursorRow, rows - 1);
+            CursorCol = Math.Min(CursorCol, cols - 1);
 
-                _dirty = true;
+            MarkDirty();
+        }
+
+        public void AttachCaretController(ICaretController controller)
+        {
+            _caretController = controller;
         }
 
         public char GetChar(int row, int col)
@@ -118,17 +130,13 @@ namespace Parser
             if (_dirty)
             {
                 BufferUpdated?.Invoke();
-                _dirty = false;
+                ClearDirty();
             }
         }
 
 
         public void WriteChar(char ch)
         {
-            if (_caretController == null) _caretController = new CaretController();
-
-            // new cycle starts when first mutation arrives
-            //if (_dirtyCount == 0) _hasFlushed = false;
 
             var wroteRow = CursorRow;
             var wroteCol = CursorCol;
@@ -168,7 +176,7 @@ namespace Parser
 
                 AdvanceCursor();
             }
-            _dirty = true;
+            MarkDirty();
             if (!_updating) BufferUpdated.Invoke();
         }
 
@@ -177,19 +185,16 @@ namespace Parser
         {
             CursorRow = Math.Clamp(row - 1, 0, Rows - 1);
             CursorCol = Math.Clamp(col - 1, 0, Cols - 1);
-            this.LogTrace($"[CURSOR] Pos=({CursorRow},{CursorCol})");
         }
 
         public void CarriageReturn()
         {
-            if (_caretController == null) _caretController = new CaretController();
             CursorCol = 0;
             _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         public void LineFeed()
         {
-            if (_caretController == null) _caretController = new CaretController();
             CursorRow++;
             if (CursorRow >= Rows)
             {
@@ -201,17 +206,22 @@ namespace Parser
 
         public void Backspace()
         {
-            if (_caretController == null) _caretController = new CaretController();
+
             if (CursorCol > 0)
             {
                 CursorCol--;
+                // Radera tecknet i bufferten
+                _chars[CursorRow, CursorCol] = '\0';
+                _mainBuffer[CursorRow, CursorCol].Char = _chars[CursorRow, CursorCol];
+                // Markera cellen som dirty
+                MarkDirty();
             }
+
             _caretController.MoveCaret(0, -1);
         }
 
         public void Tab()
         {
-            if (_caretController == null) _caretController = new CaretController();
             int nextStop = ((CursorCol / TabSize) + 1) * TabSize;
             CursorCol = Math.Min(nextStop, Cols - 1);
             _caretController.SetCaretPosition(CursorRow, CursorCol);
@@ -234,52 +244,82 @@ namespace Parser
             clearScreen = true;
         }
 
-        public void ClearLine(int row)
+        public void ClearLine(int scope)
         {
-            if ((uint)row >= (uint)Rows) return;
-            for (int c = 0; c < Cols; c++)
+            if ((uint)CursorRow >= (uint)Rows || (uint)CursorCol >= (uint)Cols) return;
+
+            switch (scope)
             {
-                _chars[row, c] = ' ';
-                _mainBuffer[CursorRow, c].Char = _chars[CursorRow, c];
-                _mainBuffer[row, c].Style = new StyleInfo();
+                case 0: // cursor → EOL
+                    for (int col = CursorCol; col < Cols; col++) ClearCell(CursorRow, col);
+                    break;
+
+                case 1: // BOL → cursor
+                    for (int col = 0; col <= CursorCol; col++) ClearCell(CursorRow, col);
+                    break;
+
+                case 2: // hela raden
+                    for (int col = 0; col < Cols; col++) ClearCell(CursorRow, col);
+                    break;
             }
+        }
+
+        private void ClearCell(int row, int col)
+        {
+            _chars[row, col] = ' ';
+            _mainBuffer[row, col].Char = _chars[row, col];
+            _mainBuffer[row, col].Style = new StyleInfo();
+            MarkDirty();
         }
 
         private void AdvanceCursor()
         {
-            if (_caretController == null) _caretController = new CaretController();
-                CursorCol++;
-                if (CursorCol >= Cols)
+            CursorCol++;
+            if (CursorCol >= Cols)
+            {
+                CursorCol = 0;
+                CursorRow++;
+                if (CursorRow >= Rows)
                 {
-                    CursorCol = 0;
-                    CursorRow++;
-                    if (CursorRow >= Rows)
-                    {
-                        ScrollUp();
-                        CursorRow = Rows - 1;
-                    }
+                    ScrollUp();
+                    CursorRow = Rows - 1;
                 }
+            }
             _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         private void ScrollUp()
         {
-            if (_caretController == null) _caretController = new CaretController();
+
+            // Flytta upp alla rader
             for (int r = 1; r < Rows; r++)
+            {
                 for (int c = 0; c < Cols; c++)
                 {
-                    _chars[r - 1, c] = _chars[r, c];
-                    _mainBuffer[r - 1, c].Style = _mainBuffer[r, c].Style;
-                    //terminalControl.TerminalGrid.MarkCellDirty(CursorRow, CursorCol);
+                    _mainBuffer[r - 1, c] = _mainBuffer[r, c];   // kopiera hela cellen
                 }
+            }
 
+            // Töm sista raden
             for (int c = 0; c < Cols; c++)
             {
-                _chars[Rows - 1, c] = ' ';
-                _mainBuffer[Rows - 1, c].Style = new StyleInfo();
+                _mainBuffer[Rows - 1, c] = new ScreenCell
+                {
+                    Char = ' ',
+                    Foreground = CurrentStyle.Foreground,
+                    Background = CurrentStyle.Background,
+                    Style = ZoneAttributes[Rows - 1, c] ?? new StyleInfo()
+                };
             }
-            MarkDirty();
+
+            // Markera hela bufferten som ändrad
+            for (int r = 0; r < Rows; r++)
+                for (int c = 0; c < Cols; c++)
+                    MarkDirty();
+
+            CursorRow = Rows - 1;
             _caretController.SetCaretPosition(CursorRow, CursorCol);
+            Scrolled?.Invoke();
         }
 
         public void SetScrollRegion(int top, int bottom)
@@ -327,12 +367,68 @@ namespace Parser
         {
             return _dirty;
         }
+
+        public void setCA()
+        {
+            this.LogDebug($"setCA(), Row = {CursorRow}, Col = {CursorCol}, Backround for cell @(23,0) = {_mainBuffer[23,0].Background}");
+            sca.row = CursorRow;
+            sca.col = CursorCol;
+            sca.cell = _mainBuffer;
+        }
+
+        public void getCA()
+        {
+            this.LogDebug($"getCA(), Row = {sca.row}, Col = {sca.col}, Backround for cell @(23,0) = {sca.cell[23, 0].Background}");
+            CursorRow = sca.row;
+            CursorCol = sca.col;
+            _mainBuffer = sca.cell;
+            forceRedraw = true;
+            BufferUpdated.Invoke();
+        }
     }
+#pragma warning restore CS8632
 
     public class StyleInfo
     {
-        public Color Foreground { get; set; } = Brushes.LimeGreen;
-        public Color Background { get; set; } = Brushes.Black;
+        public enum Color
+        {
+            Default,
+            Black,
+            DarkRed,
+            DarkGreen,
+            DarkYellow,
+            DarkBlue,
+            DarkMagenta,
+            DarkCyan,
+            Gray,
+            Red,
+            Green,
+            Yellow,
+            Blue,
+            Magenta,
+            Cyan,
+            White,
+            Default_Low,
+            Black_Low,
+            DarkRed_Low,
+            DarkGreen_Low,
+            DarkYellow_Low,
+            DarkBlue_Low,
+            DarkMagenta_Low,
+            DarkCyan_Low,
+            Gray_Low,
+            Red_Low,
+            Green_Low,
+            Yellow_Low,
+            Blue_Low,
+            Magenta_Low,
+            Cyan_Low,
+            White_Low
+        }
+
+
+        public Color Foreground { get; set; } = StyleInfo.Color.Green;
+        public Color Background { get; set; } = StyleInfo.Color.Black;
 
         public bool Blink { get; set; } = false;
         public bool Bold { get; set; } = false;
@@ -353,8 +449,8 @@ namespace Parser
 
         public void Reset()
         {
-            Foreground = Brushes.LimeGreen;
-            Background = Brushes.Black;
+            Foreground = StyleInfo.Color.Green;
+            Background = StyleInfo.Color.Black;
             Blink = false;
             Bold = false;
             Underline = false;
@@ -370,8 +466,8 @@ namespace Parser
         {
             return new StyleInfo
             {
-                Foreground = new Color(Foreground.R, Foreground.G, Foreground.B, Foreground.Name),
-                Background = new Color(Background.R, Background.G, Background.B, Background.Name),
+                Foreground = this.Foreground,
+                Background = this.Background,
                 Blink = this.Blink,
                 Bold = this.Bold,
                 Underline = this.Underline,
@@ -385,6 +481,20 @@ namespace Parser
             };
         }
     }
+
+    public static class StyleInfoExtensions
+    {
+        public static StyleInfo.Color MakeDim(this StyleInfo.Color color)
+        {
+            if (color.Equals(StyleInfo.Color.Black)) return StyleInfo.Color.Black_Low;
+            if (color.Equals(StyleInfo.Color.White)) return StyleInfo.Color.White_Low;
+            if (color.Equals(StyleInfo.Color.Green)) return StyleInfo.Color.Green_Low;
+            if (color.Equals(StyleInfo.Color.DarkYellow)) return StyleInfo.Color.DarkYellow_Low;
+            if (color.Equals(StyleInfo.Color.Blue)) return StyleInfo.Color.Blue_Low;
+            return color;
+        }
+    }
+
 
     public class RowLockManager
     {
@@ -426,5 +536,4 @@ namespace Parser
                 this.LogDebug($"[RowLockManager] Låsta rader: {string.Join(", ", locked)}");
         }
     }
-
 }

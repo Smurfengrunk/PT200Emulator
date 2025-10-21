@@ -1,0 +1,1195 @@
+{
+  "keys": [
+    {
+      "ScanCode": "0x01",
+      "Key": "Escape",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": "\u001B",
+      "ShiftEscape": "\u001B",
+      "CtrlEscape": "\u001B",
+      "CtrlShiftEscape": "\u001B"
+    },
+    {
+      "ScanCode": "0x02",
+      "Key": "1",
+      "Char": "1",
+      "ShiftChar": "!",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x03",
+      "Key": "2",
+      "Char": "2",
+      "ShiftChar": "\u0022",
+      "AltGrChar": "@",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x04",
+      "Key": "3",
+      "Char": "3",
+      "ShiftChar": "#",
+      "AltGrChar": "\u00A3",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x05",
+      "Key": "4",
+      "Char": "4",
+      "ShiftChar": "\u00A4",
+      "AltGrChar": "$",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x06",
+      "Key": "5",
+      "Char": "5",
+      "ShiftChar": "%",
+      "AltGrChar": "\u20AC",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x07",
+      "Key": "6",
+      "Char": "6",
+      "ShiftChar": "\u0026",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x08",
+      "Key": "7",
+      "Char": "7",
+      "ShiftChar": "/",
+      "AltGrChar": "{",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x09",
+      "Key": "8",
+      "Char": "8",
+      "ShiftChar": "(",
+      "AltGrChar": "[",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x0A",
+      "Key": "9",
+      "Char": "9",
+      "ShiftChar": ")",
+      "AltGrChar": "]",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x0B",
+      "Key": "0",
+      "Char": "0",
+      "ShiftChar": "=",
+      "AltGrChar": "}",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x0C",
+      "Key": "Plus",
+      "Char": "\u002B",
+      "ShiftChar": "?",
+      "AltGrChar": "\\",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x0D",
+      "Key": "Accent",
+      "Char": "\u00B4",
+      "ShiftChar": "\u0060",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x0E",
+      "Key": "Backspace",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": "\u007F",
+      "ShiftEscape": "\u007F",
+      "CtrlEscape": "\u007F",
+      "CtrlShiftEscape": "\u007F"
+    },
+    {
+      "ScanCode": "0x0F",
+      "Key": "Tab",
+      "Char": "\t",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x10",
+      "Key": "Q",
+      "Char": "q",
+      "ShiftChar": "Q",
+      "AltGrChar": "@",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x11",
+      "Key": "W",
+      "Char": "w",
+      "ShiftChar": "W",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x12",
+      "Key": "E",
+      "Char": "e",
+      "ShiftChar": "E",
+      "AltGrChar": "\u20AC",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x13",
+      "Key": "R",
+      "Char": "r",
+      "ShiftChar": "R",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x14",
+      "Key": "T",
+      "Char": "t",
+      "ShiftChar": "T",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x15",
+      "Key": "Y",
+      "Char": "y",
+      "ShiftChar": "Y",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x16",
+      "Key": "U",
+      "Char": "u",
+      "ShiftChar": "U",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x17",
+      "Key": "I",
+      "Char": "i",
+      "ShiftChar": "I",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x18",
+      "Key": "O",
+      "Char": "o",
+      "ShiftChar": "O",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x19",
+      "Key": "P",
+      "Char": "p",
+      "ShiftChar": "P",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x1A",
+      "Key": "\u00C5",
+      "Char": "\u00E5",
+      "ShiftChar": "\u00C5",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x1B",
+      "Key": "Diaeresis",
+      "Char": "\u00A8",
+      "ShiftChar": "^",
+      "AltGrChar": "~",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x1C",
+      "Key": "Enter",
+      "Char": "\n",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x1E",
+      "Key": "A",
+      "Char": "a",
+      "ShiftChar": "A",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x1F",
+      "Key": "S",
+      "Char": "s",
+      "ShiftChar": "S",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x20",
+      "Key": "D",
+      "Char": "d",
+      "ShiftChar": "D",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x21",
+      "Key": "F",
+      "Char": "f",
+      "ShiftChar": "F",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x22",
+      "Key": "G",
+      "Char": "g",
+      "ShiftChar": "G",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x23",
+      "Key": "H",
+      "Char": "h",
+      "ShiftChar": "H",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x24",
+      "Key": "J",
+      "Char": "j",
+      "ShiftChar": "J",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x25",
+      "Key": "K",
+      "Char": "k",
+      "ShiftChar": "K",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x26",
+      "Key": "L",
+      "Char": "l",
+      "ShiftChar": "L",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x27",
+      "Key": "\u00D6",
+      "Char": "\u00F6",
+      "ShiftChar": "\u00D6",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x28",
+      "Key": "\u00C4",
+      "Char": "\u00E4",
+      "ShiftChar": "\u00C4",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x2C",
+      "Key": "Z",
+      "Char": "z",
+      "ShiftChar": "Z",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x2D",
+      "Key": "X",
+      "Char": "x",
+      "ShiftChar": "X",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x2E",
+      "Key": "C",
+      "Char": "c",
+      "ShiftChar": "C",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x2F",
+      "Key": "V",
+      "Char": "v",
+      "ShiftChar": "V",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x30",
+      "Key": "B",
+      "Char": "b",
+      "ShiftChar": "B",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x31",
+      "Key": "N",
+      "Char": "n",
+      "ShiftChar": "N",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x32",
+      "Key": "M",
+      "Char": "m",
+      "ShiftChar": "M",
+      "AltGrChar": "\u00B5",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x33",
+      "Key": "Comma",
+      "Char": ",",
+      "ShiftChar": ";",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x34",
+      "Key": "Period",
+      "Char": ".",
+      "ShiftChar": ":",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x35",
+      "Key": "Minus",
+      "Char": "-",
+      "ShiftChar": "_",
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x36",
+      "Key": "RightShift",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x37",
+      "Key": "NumpadMultiply",
+      "Char": "*",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x38",
+      "Key": "LeftAlt",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x39",
+      "Key": "Space",
+      "Char": " ",
+      "ShiftChar": " ",
+      "AltGrChar": " ",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x3A",
+      "Key": "CapsLock",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x3B",
+      "Key": "F1",
+      "Escape": "\u001BO!",
+      "ShiftEscape": "\u001BO)",
+      "CtrlEscape": "\u001BO1",
+      "CtrlShiftEscape": "\u001BO9"
+    },
+    {
+      "ScanCode": "0x3C",
+      "Key": "F2",
+      "Escape": "\u001BO\"",
+      "ShiftEscape": "\u001BO*",
+      "CtrlEscape": "\u001BO2",
+      "CtrlShiftEscape": "\u001BO:"
+    },
+    {
+      "ScanCode": "0x3D",
+      "Key": "F3",
+      "Escape": "\u001BO#",
+      "ShiftEscape": "\u001BO+",
+      "CtrlEscape": "\u001BO3",
+      "CtrlShiftEscape": "\u001BO;"
+    },
+    {
+      "ScanCode": "0x3E",
+      "Key": "F4",
+      "Escape": "\u001BO$",
+      "ShiftEscape": "\u001BO,",
+      "CtrlEscape": "\u001BO4",
+      "CtrlShiftEscape": "\u001BO<"
+    },
+    {
+      "ScanCode": "0x3F",
+      "Key": "F5",
+      "Escape": "\u001BO%",
+      "ShiftEscape": "\u001BO-",
+      "CtrlEscape": "\u001BO5",
+      "CtrlShiftEscape": "\u001BO="
+    },
+    {
+      "ScanCode": "0x40",
+      "Key": "F6",
+      "Escape": "\u001BO&",
+      "ShiftEscape": null,
+      "CtrlEscape": "\u001BO6",
+      "CtrlShiftEscape": "\u001BO>"
+    },
+    {
+      "ScanCode": "0x41",
+      "Key": "F7",
+      "Escape": "\u001BO1",
+      "ShiftEscape": "\u001BO1",
+      "CtrlEscape": "\u001BO7",
+      "CtrlShiftEscape": "\u001BO?"
+    },
+    {
+      "ScanCode": "0x42",
+      "Key": "F8",
+      "Escape": "\u001BO(",
+      "ShiftEscape": "\u001BO0",
+      "CtrlEscape": "\u001BO8",
+      "CtrlShiftEscape": "\u001BO@"
+    },
+    {
+      "ScanCode": "0x43",
+      "Key": "F9",
+      "Escape": "\u001BOM",
+      "ShiftEscape": "\u001BO[",
+      "CtrlEscape": "\u001BOi",
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x44",
+      "Key": "F10",
+      "Escape": "\u001BON",
+      "ShiftEscape": "\u001BO\\",
+      "CtrlEscape": "\u001BOj",
+      "CtrlShiftEscape": "\u001BOx"
+    },
+    {
+      "ScanCode": "0x57",
+      "Key": "F11",
+      "Escape": "\u001BOK",
+      "ShiftEscape": "\u001BOY",
+      "CtrlEscape": "\u001BOg",
+      "CtrlShiftEscape": "\u001BOu"
+    },
+    {
+      "ScanCode": "0x58",
+      "Key": "F12",
+      "Escape": "\u001BOL",
+      "ShiftEscape": "\u001BOZ",
+      "CtrlEscape": "\u001BOh",
+      "CtrlShiftEscape": "\u001BOV"
+    },
+    {
+      "ScanCode": "0x200",
+      "Key": "PF1",
+      "Escape": "\u001BOA",
+      "ShiftEscape": "\u001BO0",
+      "CtrlEscape": "\u001BO1",
+      "CtrlShiftEscape": "\u001BOk"
+    },
+    {
+      "ScanCode": "0x201",
+      "Key": "PF2",
+      "Escape": "\u001BOB",
+      "ShiftEscape": "\u001BOP",
+      "CtrlEscape": "\u001BO^",
+      "CtrlShiftEscape": "\u001BOl"
+    },
+    {
+      "ScanCode": "0x202",
+      "Key": "PF3",
+      "Escape": "\u001BOC",
+      "ShiftEscape": "\u001BOQ",
+      "CtrlEscape": "\u001BO-",
+      "CtrlShiftEscape": "\u001BOm"
+    },
+    {
+      "ScanCode": "0x203",
+      "Key": "PF4",
+      "Escape": "\u001BOD",
+      "ShiftEscape": "\u001BOR",
+      "CtrlEscape": "\u001BO ",
+      "CtrlShiftEscape": "\u001BOn"
+    },
+    {
+      "ScanCode": "0x204",
+      "Key": "PF5",
+      "Escape": "\u001BOE",
+      "ShiftEscape": "\u001BOS",
+      "CtrlEscape": "\u001BOa",
+      "CtrlShiftEscape": "\u001BOo"
+    },
+    {
+      "ScanCode": "0x205",
+      "Key": "PF6",
+      "Escape": "\u001BOF",
+      "ShiftEscape": "\u001BOT",
+      "CtrlEscape": "\u001BOb",
+      "CtrlShiftEscape": "\u001BOP"
+    },
+    {
+      "ScanCode": "0x206",
+      "Key": "PF7",
+      "Escape": "\u001BOG",
+      "ShiftEscape": "\u001BOU",
+      "CtrlEscape": "\u001BOC",
+      "CtrlShiftEscape": "\u001BOq"
+    },
+    {
+      "ScanCode": "0x207",
+      "Key": "PF8",
+      "Escape": "\u001BOH",
+      "ShiftEscape": "\u001BOV",
+      "CtrlEscape": "\u001BOd",
+      "CtrlShiftEscape": "\u001BOr"
+    },
+    {
+      "ScanCode": "0x208",
+      "Key": "PF9",
+      "Escape": "\u001BOI",
+      "ShiftEscape": "\u001BOW",
+      "CtrlEscape": "\u001BOe",
+      "CtrlShiftEscape": "\u001BOS"
+    },
+    {
+      "ScanCode": "0x209",
+      "Key": "PF10",
+      "Escape": "\u001BOJ",
+      "ShiftEscape": "\u001BOX",
+      "CtrlEscape": "\u001BOf",
+      "CtrlShiftEscape": "\u001BOt"
+    },
+    {
+      "ScanCode": "0x20A",
+      "Key": "PF11",
+      "Escape": "\u001BOK",
+      "ShiftEscape": "\u001BOY",
+      "CtrlEscape": "\u001BOg",
+      "CtrlShiftEscape": "\u001BOu"
+    },
+    {
+      "ScanCode": "0x20B",
+      "Key": "PF12",
+      "Escape": "\u001BOL",
+      "ShiftEscape": "\u001BOZ",
+      "CtrlEscape": "\u001BOh",
+      "CtrlShiftEscape": "\u001BOV"
+    },
+    {
+      "ScanCode": "0x20C",
+      "Key": "Stop_SS3",
+      "Escape": null,
+      "ShiftEscape": "\u001BOy",
+      "CtrlEscape": "\u001BOZ",
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x20D",
+      "Key": "Setup",
+      "Escape": null,
+      "ShiftEscape": "\u001BO}",
+      "CtrlEscape": "\u001BO~",
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x20E",
+      "Key": "BackTab_SS3",
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": "\u001BO{",
+      "CtrlShiftEscape": "\u001BO{"
+    },
+    {
+      "ScanCode": "0x45",
+      "Key": "NumLock",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x46",
+      "Key": "ScrollLock",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x47",
+      "Key": "Numpad7",
+      "Char": "7",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x48",
+      "Key": "Numpad8",
+      "Char": "8",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x49",
+      "Key": "Numpad9",
+      "Char": "9",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4A",
+      "Key": "NumpadMinus",
+      "Char": "-",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4B",
+      "Key": "Numpad4",
+      "Char": "4",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4C",
+      "Key": "Numpad5",
+      "Char": "5",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4D",
+      "Key": "Numpad6",
+      "Char": "6",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4E",
+      "Key": "NumpadPlus",
+      "Char": "\u002B",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x4F",
+      "Key": "Numpad1",
+      "Char": "1",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x50",
+      "Key": "Numpad2",
+      "Char": "2",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x51",
+      "Key": "Numpad3",
+      "Char": "3",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x52",
+      "Key": "Numpad0",
+      "Char": "0",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x53",
+      "Key": "NumpadDecimal",
+      "Char": ".",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE01C",
+      "Key": "NumpadEnter",
+      "Char": "\n",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE01D",
+      "Key": "RightCtrl",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE035",
+      "Key": "NumpadDivide",
+      "Char": "/",
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE038",
+      "Key": "RightAlt",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE047",
+      "Key": "Home",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": "\u001B[H",
+      "ShiftEscape": "\u001B[H",
+      "CtrlEscape": "\u001B[H",
+      "CtrlShiftEscape": "\u001B[H"
+    },
+    {
+      "ScanCode": "0xE048",
+      "Key": "ArrowUp",
+      "Escape": "\u001B[A",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE050",
+      "Key": "ArrowDown",
+      "Escape": "\u001B[B",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE04B",
+      "Key": "ArrowLeft",
+      "Escape": "\u001B[D",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE04D",
+      "Key": "ArrowRight",
+      "Escape": "\u001B[C",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE049",
+      "Key": "PageUp",
+      "Escape": "\u001B$a",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE051",
+      "Key": "PageDown",
+      "Escape": "\u001B$b",
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE047",
+      "Key": "Home",
+      "Escape": "\u001B$A",
+      "ShiftEscape": "\u001B$B",
+      "CtrlEscape": "\u001B$B",
+      "CtrlShiftEscape": "\u001B$B"
+    },
+    {
+      "ScanCode": "0xE04F",
+      "Key": "End",
+      "Escape": "\u001B[F",
+      "ShiftEscape": "\u001B[F",
+      "CtrlEscape": "\u001B[F",
+      "CtrlShiftEscape": "\u001B[F"
+    },
+    {
+      "ScanCode": "0xE052",
+      "Key": "Insert",
+      "Escape": "\u001B[4h",
+      "ShiftEscape": "\u001B[4h",
+      "CtrlEscape": "\u001B[4h",
+      "CtrlShiftEscape": "\u001B[4h"
+    },
+    {
+      "ScanCode": "0xE053",
+      "Key": "Delete",
+      "Escape": "\u001B[P",
+      "ShiftEscape": "\u001B[M",
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE05B",
+      "Key": "LeftWindows",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE05C",
+      "Key": "RightWindows",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0xE05D",
+      "Key": "Application",
+      "Char": null,
+      "ShiftChar": null,
+      "AltGrChar": null,
+      "Escape": null,
+      "ShiftEscape": null,
+      "CtrlEscape": null,
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x100",
+      "Key": "PA1",
+      "Escape": "\u001BN!",
+      "ShiftEscape": "\u001BN%",
+      "CtrlEscape": "\u001BN1",
+      "CtrlShiftEscape": "\u001BN-"
+    },
+    {
+      "ScanCode": "0x101",
+      "Key": "PA2",
+      "Escape": "\u001BN#",
+      "ShiftEscape": "\u001BN&",
+      "CtrlEscape": "\u001BN*",
+      "CtrlShiftEscape": "\u001BN."
+    },
+    {
+      "ScanCode": "0x102",
+      "Key": "PA3",
+      "Escape": "\u001BNC",
+      "ShiftEscape": "\u001BN1",
+      "CtrlEscape": "\u001BN+",
+      "CtrlShiftEscape": "\u001BN1"
+    },
+    {
+      "ScanCode": "0x103",
+      "Key": "PA4",
+      "Escape": "\u001BN$",
+      "ShiftEscape": "\u001BN(",
+      "CtrlEscape": "\u001BN,",
+      "CtrlShiftEscape": "\u001BN0"
+    },
+    {
+      "ScanCode": "0x104",
+      "Key": "Cancel",
+      "Escape": "\u001BNU",
+      "ShiftEscape": "\u001BNV",
+      "CtrlEscape": "\u001BNW",
+      "CtrlShiftEscape": "\u001BNX"
+    },
+    {
+      "ScanCode": "0x105",
+      "Key": "EndBegin",
+      "Escape": "\u001BN-",
+      "ShiftEscape": null,
+      "CtrlEscape": "\u001BNa",
+      "CtrlShiftEscape": "\u001BNb"
+    }
+  ]
+}

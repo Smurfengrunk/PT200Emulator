@@ -1,20 +1,17 @@
-﻿using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using PrimS.Telnet;
+﻿using PrimS.Telnet;
 using Serilog;
-using Util;
+using System.Text;
 
 namespace Transport
 {
     public class TelnetByteStream : IByteStream
     {
         private Client _client;
-        private CancellationTokenSource _cts, _rcts;
+        private CancellationTokenSource _cts;
         private Task _receiveTask;
 
         public event Action<byte[]> DataReceived;
+        public event Action Disconnected;
 
         public async Task ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
         {
@@ -49,21 +46,6 @@ namespace Transport
             }
         }
 
-        public async Task<byte[]> ReadAsync(CancellationToken cancellationToken = default)
-        {
-            _rcts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-            if (_client == null)
-                throw new InvalidOperationException("Not connected.");
-
-            cancellationToken.ThrowIfCancellationRequested();
-            var response = await _client.ReadAsync();
-            this.LogDebug($"Readasync response is {response}");
-            return response != null
-                ? Encoding.ASCII.GetBytes(response)
-                : Array.Empty<byte>();
-        }
-
         public async Task WriteAsync(byte[] buffer, CancellationToken cancellationToken = default)
         {
             if (_client == null)
@@ -71,16 +53,17 @@ namespace Transport
 
             var text = Encoding.ASCII.GetString(buffer);
 
+
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
                 await _client.WriteAsync(text);
-                //Log.Logger.LogDebug($"Skickar {buffer.Length} bytes: \"{text}\"");
             }
             catch (Exception ex)
             {
-                Log.Logger.LogErr($"WriteAsync exception {ex}");
-                throw;
+                Log.Logger.Error($"WriteAsync exception {ex}");
+                OnDisconnected();
+                return;
             }
         }
 
@@ -98,6 +81,7 @@ namespace Transport
                         if (response == null)
                         {
                             Log.Logger.Information("Servern stängde anslutningen.");
+                            OnDisconnected();
                             break; // Avsluta loopen
                         }
                         else if (response.Length == 0)
@@ -114,11 +98,13 @@ namespace Transport
                     }
                     catch (OperationCanceledException)
                     {
+                        OnDisconnected();
                         break;
                     }
                     catch (Exception ex)
                     {
-                        Log.Logger.LogErr($"ReadAsync exception {ex}");
+                        Log.Logger.Error($"ReadAsync exception {ex}");
+                        OnDisconnected();
                         break;
                     }
                 }
@@ -126,5 +112,38 @@ namespace Transport
             return _receiveTask;
         }
 
+        private void OnDisconnected()
+        {
+            Log.Logger.Information("OnDisconnected() anropad");
+            Disconnected?.Invoke();
+        }
+    }
+
+    public class EchoFilter
+    {
+        private bool _lastSentWasBackspace;
+
+        // Anropas från ConsoleAdapter när du skickar BS (0x08)
+        public void MarkBackspaceSent()
+        {
+            _lastSentWasBackspace = true;
+        }
+
+        // Kör inkommande bytes genom filtret innan du skriver ut dem
+        public IEnumerable<byte> FilterIncoming(IEnumerable<byte> incoming)
+        {
+            foreach (var b in incoming)
+            {
+                if (_lastSentWasBackspace && b == 0x20)
+                {
+                    // Ignorera serverns blankstegseko
+                    _lastSentWasBackspace = false;
+                    continue;
+                }
+
+                _lastSentWasBackspace = false;
+                yield return b;
+            }
+        }
     }
 }

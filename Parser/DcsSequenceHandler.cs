@@ -1,10 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Util;
+﻿using System.Text;
 
 namespace Parser
 {
@@ -29,7 +23,6 @@ namespace Parser
             RaiseStatus("🟡 Väntar på DCS");
             if (payload.Length == 0)
             {
-                this.LogDebug("[DCS] Tom DCS mottagen – statusförfrågan.");
                 RaiseStatus("🟡 Väntar på DCS");
                 var dcs = state.BuildDcs(this.jsonPath);
                 SendDcsResponse(dcs);
@@ -37,9 +30,6 @@ namespace Parser
             }
 
             var content = Encoding.ASCII.GetString(payload);
-            this.LogDebug($"[DCS] Innehåll: {content}");
-            this.LogDebug($"[DCS] Payload: {BitConverter.ToString(payload)}");
-            this.LogDebug($"[DCS] Tolkat innehåll: {content}");
 
             state.ReadDcs(this.jsonPath, content);
             var actions = DcsSequenceHandler.Build(content);
@@ -49,9 +39,6 @@ namespace Parser
 
         private void SendDcsResponse(string dcs)
         {
-            this.LogDebug($"[DCS] OnDcsResponse is {(OnDcsResponse == null ? "null" : "set")}");
-            var hex = BitConverter.ToString(Encoding.ASCII.GetBytes(dcs));
-            this.LogDebug($"[DCS Response HEX] {hex}, Längd = {dcs.Length}");
             var bytes = Encoding.ASCII.GetBytes(dcs);
             this.LogTrace($"[DCS] Using handler hash={this.GetHashCode()}");
             OnDcsResponse?.Invoke(bytes);
