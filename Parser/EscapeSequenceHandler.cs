@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Logging;
 
 namespace Parser
 {
@@ -32,7 +33,6 @@ namespace Parser
         /// </summary>
         public void Handle(string sequence)
         {
-            this.LogDebug($"[EscapeSequenceHandler] sequence = {sequence}");
             switch (sequence.Substring(0, 1))
             {
                 case "$":

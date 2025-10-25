@@ -1,4 +1,6 @@
-﻿namespace Parser
+﻿using Logging;
+
+namespace Parser
 {
     public class VisualAttributeManager
     {
@@ -61,6 +63,7 @@
             if (parameters.Length == 0)
             {
                 buffer.CurrentStyle.Reset();
+                buffer.forceRedraw = true;
                 return;
             }
 
@@ -70,6 +73,7 @@
                 {
                     case "0":
                         buffer.CurrentStyle.Reset();
+                        buffer.forceRedraw = true;
                         break;
                     case "2":
                         buffer.CurrentStyle.LowIntensity = true; // Lägg till flagga i CurrentStyle
@@ -91,11 +95,9 @@
                         break;
                     case ">3":
                         this.LogDebug($"Line Drawing Graphics, ESC [{p}m");
-                        this.LogDebug($"LowIntensity flag = {buffer.CurrentStyle.LowIntensity}");
                         break;
                     case ">4":
                         this.LogDebug($"Block Drawing Graphics, ESC [{p}m");
-                        this.LogDebug($"LowIntensity flag = {buffer.CurrentStyle.LowIntensity}");
                         break;
                 }
             }

@@ -1,4 +1,5 @@
-﻿
+﻿using Logging;
+
 namespace Parser
 {
     public class ModeManager
@@ -49,21 +50,11 @@ namespace Parser
         public void Set(int mode)
         {
             activeModes.Add(mode);
-            Log(mode, true);
         }
 
         public void Reset(int mode)
         {
             activeModes.Remove(mode);
-            Log(mode, false);
-        }
-
-        private void Log(int mode, bool enabled)
-        {
-            if (definitions.TryGetValue(mode, out var def))
-                this.LogDebug(loc.Get(enabled ? "mode.set" : "mode.reset", mode, def.Name));
-            else
-                this.LogDebug(loc.Get(enabled ? "mode.set" : "mode.reset", mode, "Okänt läge"));
         }
 
         public void Dump()

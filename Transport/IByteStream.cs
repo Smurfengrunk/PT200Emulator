@@ -5,7 +5,7 @@
         /// <summary>
         /// Etablerar en anslutning till given host och port.
         /// </summary>
-        Task ConnectAsync(string host, int port, CancellationToken cancellationToken = default);
+        Task<bool> ConnectAsync(string host, int port, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Kopplar ned anslutningen.

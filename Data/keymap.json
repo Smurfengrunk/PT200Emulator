@@ -596,110 +596,14 @@
     },
     {
       "ScanCode": "0x3B",
-      "Key": "F1",
-      "Escape": "\u001BO!",
-      "ShiftEscape": "\u001BO)",
-      "CtrlEscape": "\u001BO1",
-      "CtrlShiftEscape": "\u001BO9"
-    },
-    {
-      "ScanCode": "0x3C",
-      "Key": "F2",
-      "Escape": "\u001BO\"",
-      "ShiftEscape": "\u001BO*",
-      "CtrlEscape": "\u001BO2",
-      "CtrlShiftEscape": "\u001BO:"
-    },
-    {
-      "ScanCode": "0x3D",
-      "Key": "F3",
-      "Escape": "\u001BO#",
-      "ShiftEscape": "\u001BO+",
-      "CtrlEscape": "\u001BO3",
-      "CtrlShiftEscape": "\u001BO;"
-    },
-    {
-      "ScanCode": "0x3E",
-      "Key": "F4",
-      "Escape": "\u001BO$",
-      "ShiftEscape": "\u001BO,",
-      "CtrlEscape": "\u001BO4",
-      "CtrlShiftEscape": "\u001BO<"
-    },
-    {
-      "ScanCode": "0x3F",
-      "Key": "F5",
-      "Escape": "\u001BO%",
-      "ShiftEscape": "\u001BO-",
-      "CtrlEscape": "\u001BO5",
-      "CtrlShiftEscape": "\u001BO="
-    },
-    {
-      "ScanCode": "0x40",
-      "Key": "F6",
-      "Escape": "\u001BO&",
-      "ShiftEscape": "\u001BO.",
-      "CtrlEscape": "\u001BO6",
-      "CtrlShiftEscape": "\u001BO>"
-    },
-    {
-      "ScanCode": "0x41",
-      "Key": "F7",
-      "Escape": "\u001BO'",
-      "ShiftEscape": "\u001BO/",
-      "CtrlEscape": "\u001BO7",
-      "CtrlShiftEscape": "\u001BO?"
-    },
-    {
-      "ScanCode": "0x42",
-      "Key": "F8",
-      "Escape": "\u001BO(",
-      "ShiftEscape": "\u001BO0",
-      "CtrlEscape": "\u001BO8",
-      "CtrlShiftEscape": "\u001BO@"
-    },
-    {
-      "ScanCode": "0x43",
-      "Key": "F9",
-      "Escape": "\u001BOM",
-      "ShiftEscape": "\u001BO[",
-      "CtrlEscape": "\u001BOi",
-      "CtrlShiftEscape": null
-    },
-    {
-      "ScanCode": "0x44",
-      "Key": "F10",
-      "Escape": "\u001BON",
-      "ShiftEscape": "\u001BO\\",
-      "CtrlEscape": "\u001BOj",
-      "CtrlShiftEscape": "\u001BOx"
-    },
-    {
-      "ScanCode": "0x57",
-      "Key": "F11",
-      "Escape": "\u001BOK",
-      "ShiftEscape": "\u001BOY",
-      "CtrlEscape": "\u001BOg",
-      "CtrlShiftEscape": "\u001BOu"
-    },
-    {
-      "ScanCode": "0x58",
-      "Key": "F12",
-      "Escape": "\u001BOL",
-      "ShiftEscape": "\u001BOZ",
-      "CtrlEscape": "\u001BOh",
-      "CtrlShiftEscape": "\u001BOV"
-    },
-    {
-      "ScanCode": "0x200",
       "Key": "PF1",
       "Escape": "\u001BOA",
-      "ShiftEscape": "\u001BO0",
-      "CtrlEscape": "\u001BO1",
+      "ShiftEscape": "\u001BOO",
+      "CtrlEscape": "\u001BO]",
       "CtrlShiftEscape": "\u001BOk"
     },
     {
-      "ScanCode": "0x201",
+      "ScanCode": "0x3C",
       "Key": "PF2",
       "Escape": "\u001BOB",
       "ShiftEscape": "\u001BOP",
@@ -707,15 +611,15 @@
       "CtrlShiftEscape": "\u001BOl"
     },
     {
-      "ScanCode": "0x202",
+      "ScanCode": "0x3D",
       "Key": "PF3",
       "Escape": "\u001BOC",
       "ShiftEscape": "\u001BOQ",
-      "CtrlEscape": "\u001BO-",
+      "CtrlEscape": "\u001BO_",
       "CtrlShiftEscape": "\u001BOm"
     },
     {
-      "ScanCode": "0x203",
+      "ScanCode": "0x3E",
       "Key": "PF4",
       "Escape": "\u001BOD",
       "ShiftEscape": "\u001BOR",
@@ -723,7 +627,7 @@
       "CtrlShiftEscape": "\u001BOn"
     },
     {
-      "ScanCode": "0x204",
+      "ScanCode": "0x3F",
       "Key": "PF5",
       "Escape": "\u001BOE",
       "ShiftEscape": "\u001BOS",
@@ -731,7 +635,7 @@
       "CtrlShiftEscape": "\u001BOo"
     },
     {
-      "ScanCode": "0x205",
+      "ScanCode": "0x40",
       "Key": "PF6",
       "Escape": "\u001BOF",
       "ShiftEscape": "\u001BOT",
@@ -739,7 +643,7 @@
       "CtrlShiftEscape": "\u001BOP"
     },
     {
-      "ScanCode": "0x206",
+      "ScanCode": "0x41",
       "Key": "PF7",
       "Escape": "\u001BOG",
       "ShiftEscape": "\u001BOU",
@@ -747,7 +651,7 @@
       "CtrlShiftEscape": "\u001BOq"
     },
     {
-      "ScanCode": "0x207",
+      "ScanCode": "0x42",
       "Key": "PF8",
       "Escape": "\u001BOH",
       "ShiftEscape": "\u001BOV",
@@ -755,7 +659,7 @@
       "CtrlShiftEscape": "\u001BOr"
     },
     {
-      "ScanCode": "0x208",
+      "ScanCode": "0x43",
       "Key": "PF9",
       "Escape": "\u001BOI",
       "ShiftEscape": "\u001BOW",
@@ -763,7 +667,7 @@
       "CtrlShiftEscape": "\u001BOS"
     },
     {
-      "ScanCode": "0x209",
+      "ScanCode": "0x44",
       "Key": "PF10",
       "Escape": "\u001BOJ",
       "ShiftEscape": "\u001BOX",
@@ -771,7 +675,7 @@
       "CtrlShiftEscape": "\u001BOt"
     },
     {
-      "ScanCode": "0x20A",
+      "ScanCode": "0x57",
       "Key": "PF11",
       "Escape": "\u001BOK",
       "ShiftEscape": "\u001BOY",
@@ -779,12 +683,92 @@
       "CtrlShiftEscape": "\u001BOu"
     },
     {
-      "ScanCode": "0x20B",
+      "ScanCode": "0x58",
       "Key": "PF12",
       "Escape": "\u001BOL",
       "ShiftEscape": "\u001BOZ",
       "CtrlEscape": "\u001BOh",
       "CtrlShiftEscape": "\u001BOV"
+    },
+    {
+      "ScanCode": "0x300",
+      "Key": "f1",
+      "Escape": "\u001BO!",
+      "ShiftEscape": "\u001BO)",
+      "CtrlEscape": "\u001BO1",
+      "CtrlShiftEscape": "\u001BO9"
+    },
+    {
+      "ScanCode": "0x301",
+      "Key": "f2",
+      "Escape": "\u001BO\"",
+      "ShiftEscape": "\u001BO*",
+      "CtrlEscape": "\u001BO2",
+      "CtrlShiftEscape": "\u001BO:"
+    },
+    {
+      "ScanCode": "0x302",
+      "Key": "f3",
+      "Escape": "\u001BO#",
+      "ShiftEscape": "\u001BO+",
+      "CtrlEscape": "\u001BO3",
+      "CtrlShiftEscape": "\u001BO;"
+    },
+    {
+      "ScanCode": "0x303",
+      "Key": "f4",
+      "Escape": "\u001BO$",
+      "ShiftEscape": "\u001BO,",
+      "CtrlEscape": "\u001BO4",
+      "CtrlShiftEscape": "\u001BO<"
+    },
+    {
+      "ScanCode": "0x304",
+      "Key": "f5",
+      "Escape": "\u001BO%",
+      "ShiftEscape": "\u001BO-",
+      "CtrlEscape": "\u001BO5",
+      "CtrlShiftEscape": "\u001BO="
+    },
+    {
+      "ScanCode": "0x305",
+      "Key": "f6",
+      "Escape": "\u001BO&",
+      "ShiftEscape": "\u001BO.",
+      "CtrlEscape": "\u001BO6",
+      "CtrlShiftEscape": "\u001BO>"
+    },
+    {
+      "ScanCode": "0x306",
+      "Key": "f7",
+      "Escape": "\u001BO'",
+      "ShiftEscape": "\u001BO/",
+      "CtrlEscape": "\u001BO7",
+      "CtrlShiftEscape": "\u001BO?"
+    },
+    {
+      "ScanCode": "0x307",
+      "Key": "f8",
+      "Escape": "\u001BO(",
+      "ShiftEscape": "\u001BO0",
+      "CtrlEscape": "\u001BO8",
+      "CtrlShiftEscape": "\u001BO@"
+    },
+    {
+      "ScanCode": "0x308",
+      "Key": "f9",
+      "Escape": "\u001BOM",
+      "ShiftEscape": "\u001BO[",
+      "CtrlEscape": "\u001BOi",
+      "CtrlShiftEscape": null
+    },
+    {
+      "ScanCode": "0x309",
+      "Key": "f10",
+      "Escape": "\u001BON",
+      "ShiftEscape": "\u001BO\\",
+      "CtrlEscape": "\u001BOj",
+      "CtrlShiftEscape": "\u001BOx"
     },
     {
       "ScanCode": "0x20C",

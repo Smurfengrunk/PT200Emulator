@@ -1,5 +1,7 @@
 ﻿
 using Parser;
+using System.Diagnostics;
+using Logging;
 
 namespace Parser
 {
@@ -37,6 +39,8 @@ namespace Parser
         {
             public int row, col;
             public ScreenCell[,] cell;
+            public StyleInfo[,] zoneAttributes;
+
             //relative screen position?
             //value of SGR command?
         }
@@ -60,6 +64,7 @@ namespace Parser
                     _mainBuffer[r, c] = new ScreenCell();
                     _mainBuffer[r, c].Style = new StyleInfo();
                     _chars[r, c] = ' ';
+                    ZoneAttributes[r, c] = new StyleInfo();
                 }
             for (int c = 0; c < cols; c++) _systemLineBuffer[c] = new ScreenCell();
 
@@ -90,6 +95,7 @@ namespace Parser
                 {
                     if (newStyles[r, c] == null)
                         _mainBuffer[r, c].Style = new StyleInfo();
+                        ZoneAttributes[r, c] = new StyleInfo();
                 }
 
             _chars = newChars;
@@ -185,12 +191,12 @@ namespace Parser
         {
             CursorRow = Math.Clamp(row - 1, 0, Rows - 1);
             CursorCol = Math.Clamp(col - 1, 0, Cols - 1);
+            _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         public void CarriageReturn()
         {
             CursorCol = 0;
-            _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         public void LineFeed()
@@ -201,30 +207,55 @@ namespace Parser
                 ScrollUp();
                 CursorRow = Rows - 1;
             }
-            _caretController.MoveCaret(1, 0);
         }
 
         public void Backspace()
         {
-
+            var ccol = 0;
             if (CursorCol > 0)
             {
                 CursorCol--;
-                // Radera tecknet i bufferten
-                _chars[CursorRow, CursorCol] = '\0';
-                _mainBuffer[CursorRow, CursorCol].Char = _chars[CursorRow, CursorCol];
-                // Markera cellen som dirty
+                ccol = CursorCol;
+
+                // Flytta hela svansen åt vänster
+                for (int i = CursorCol; i < Cols - 1; i++)
+                {
+                    _chars[CursorRow, i] = _chars[CursorRow, i + 1];
+                    _mainBuffer[CursorRow, i].Char = _chars[CursorRow, i];
+                }
+
+                // Sätt sista cellen till blank
+                _chars[CursorRow, Cols - 1] = ' ';
+                _mainBuffer[CursorRow, Cols - 1].Char = ' ';
+
                 MarkDirty();
             }
+        }
 
-            _caretController.MoveCaret(0, -1);
+        public void Delete()
+        {
+            if (CursorCol < Cols) // så länge vi inte står längst till höger
+            {
+                // Flytta hela svansen åt vänster från cursorpositionen
+                for (int i = CursorCol; i < Cols - 1; i++)
+                {
+                    _chars[CursorRow, i] = _chars[CursorRow, i + 1];
+                    _mainBuffer[CursorRow, i].Char = _chars[CursorRow, i];
+                }
+
+                // Sätt sista cellen till blank
+                _chars[CursorRow, Cols - 1] = ' ';
+                _mainBuffer[CursorRow, Cols - 1].Char = ' ';
+
+                // Markera raden som dirty så att renderern ritar om
+                MarkDirty();
+            }
         }
 
         public void Tab()
         {
             int nextStop = ((CursorCol / TabSize) + 1) * TabSize;
             CursorCol = Math.Min(nextStop, Cols - 1);
-            _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         public void ClearScreen()
@@ -240,7 +271,6 @@ namespace Parser
             CursorRow = 0;
             CursorCol = 0;
             if (_caretController == null) return;
-            _caretController.SetCaretPosition(CursorRow, CursorCol);
             clearScreen = true;
         }
 
@@ -285,7 +315,6 @@ namespace Parser
                     CursorRow = Rows - 1;
                 }
             }
-            _caretController.SetCaretPosition(CursorRow, CursorCol);
         }
 
         private void ScrollUp()
@@ -318,7 +347,6 @@ namespace Parser
                     MarkDirty();
 
             CursorRow = Rows - 1;
-            _caretController.SetCaretPosition(CursorRow, CursorCol);
             Scrolled?.Invoke();
         }
 
@@ -370,20 +398,46 @@ namespace Parser
 
         public void setCA()
         {
-            this.LogDebug($"setCA(), Row = {CursorRow}, Col = {CursorCol}, Backround for cell @(23,0) = {_mainBuffer[23,0].Background}");
             sca.row = CursorRow;
             sca.col = CursorCol;
-            sca.cell = _mainBuffer;
+
+            // Gör en riktig kopia av bufferten
+            var rows = _mainBuffer.GetLength(0);
+            var cols = _mainBuffer.GetLength(1);
+            var bufferCopy = new ScreenCell[rows, cols];
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                    bufferCopy[r, c] = _mainBuffer[r, c];
+
+            sca.cell = bufferCopy;
+
+            // Gör en riktig kopia av zoneAttributes
+            var zoneCopy = new StyleInfo[rows, cols];
+            for (int r = 0; r < rows; r++)
+                for (int c = 0; c < cols; c++)
+                    zoneCopy[r, c] = ZoneAttributes[r, c]?.Clone();
+
+            sca.zoneAttributes = zoneCopy;
         }
 
         public void getCA()
         {
-            this.LogDebug($"getCA(), Row = {sca.row}, Col = {sca.col}, Backround for cell @(23,0) = {sca.cell[23, 0].Background}");
+
+            // Återställ cursorposition
             CursorRow = sca.row;
             CursorCol = sca.col;
+
+            // Återställ buffert och attribut
             _mainBuffer = sca.cell;
+            ZoneAttributes = sca.zoneAttributes;
+
+            // Markera att hela skärmen måste ritas om
             forceRedraw = true;
-            BufferUpdated.Invoke();
+
+            // Tvinga renderern att invalidiera sitt cache
+            BufferUpdated?.Invoke();
+
+            // Flytta även den fysiska caret i konsolen
         }
     }
 #pragma warning restore CS8632

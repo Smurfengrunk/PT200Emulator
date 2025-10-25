@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Transport
 {
-    public class TelnetByteStream : IByteStream
+    public class TelnetByteStream : IByteStream, IAsyncDisposable
     {
         private Client _client;
         private CancellationTokenSource _cts;
@@ -12,13 +12,24 @@ namespace Transport
 
         public event Action<byte[]> DataReceived;
         public event Action Disconnected;
+        private bool _disconnected = false;
 
-        public async Task ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
+        public async Task<bool> ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
         {
-            var tcpStream = new TcpByteStream(host, port);
-            _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _client = new Client(tcpStream, _cts.Token);
-            await Task.Yield();
+            try
+            {
+                var tcpStream = new TcpByteStream(host, port);
+                _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _client = new Client(tcpStream, _cts.Token);
+                await Task.Yield();
+                _disconnected = false;
+            }
+            catch
+            {
+                OnDisconnected();
+                return false;
+            }
+            return true;
         }
 
         public async Task DisconnectAsync()
@@ -67,20 +78,19 @@ namespace Transport
             }
         }
 
-        public void Dispose() => DisconnectAsync().Wait();
-
         public Task StartReceiveLoop(CancellationToken token)
         {
+            string response = null;
             _receiveTask = Task.Run(async () =>
             {
                 while (!token.IsCancellationRequested)
                 {
                     try
                     {
-                        var response = await _client.ReadAsync();
+                        if (_client != null) response = await _client.ReadAsync();
                         if (response == null)
                         {
-                            Log.Logger.Information("Servern stängde anslutningen.");
+                            Log.Logger.Error("Servern stängde anslutningen.");
                             OnDisconnected();
                             break; // Avsluta loopen
                         }
@@ -89,15 +99,21 @@ namespace Transport
                             await Task.Delay(50, token);
                             continue;
                         }
-                        else if (response.Length >= 0)
+                        else
                         {
                             var bytes = Encoding.ASCII.GetBytes(response);
                             DataReceived?.Invoke(bytes);
                         }
-                        else throw new InvalidOperationException();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        Log.Logger.Error("Invalid Operation Exception");
+                        OnDisconnected();
+                        return;
                     }
                     catch (OperationCanceledException)
                     {
+                        Log.Logger.Error("Operation Cancelled Exception");
                         OnDisconnected();
                         break;
                     }
@@ -114,36 +130,24 @@ namespace Transport
 
         private void OnDisconnected()
         {
-            Log.Logger.Information("OnDisconnected() anropad");
-            Disconnected?.Invoke();
-        }
-    }
-
-    public class EchoFilter
-    {
-        private bool _lastSentWasBackspace;
-
-        // Anropas från ConsoleAdapter när du skickar BS (0x08)
-        public void MarkBackspaceSent()
-        {
-            _lastSentWasBackspace = true;
-        }
-
-        // Kör inkommande bytes genom filtret innan du skriver ut dem
-        public IEnumerable<byte> FilterIncoming(IEnumerable<byte> incoming)
-        {
-            foreach (var b in incoming)
+            if (!_disconnected)
             {
-                if (_lastSentWasBackspace && b == 0x20)
-                {
-                    // Ignorera serverns blankstegseko
-                    _lastSentWasBackspace = false;
-                    continue;
-                }
-
-                _lastSentWasBackspace = false;
-                yield return b;
+                Log.Logger.Error($"Disconnected event triggered");
+                Disconnected?.Invoke();
+                _disconnected = true;
             }
         }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisconnectAsync().ConfigureAwait(false);
+        }
+
+        // Behåll ev. IDisposable också om du vill vara bakåtkompatibel
+        public void Dispose()
+        {
+            DisconnectAsync().GetAwaiter().GetResult();
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Logging;
 
 namespace Parser
 {
@@ -7,7 +8,6 @@ namespace Parser
     {
         private readonly CharTableManager charTables;
         private readonly EscapeSequenceHandler escHandler;
-        private readonly PercentHandler percentHandler;
         private readonly OscHandler oscHandler;
         private readonly DollarCommandHandler dollarCommandHandler = new();
         public bool inEmacs => escHandler.inEmacs;
@@ -65,7 +65,6 @@ namespace Parser
 
             _csiHandler = new CsiSequenceHandler(new CsiCommandTable(definitions, modeManager, visualAttributeManager, Screenbuffer, termState), modeManager);
             _dcsHandler = new DcsSequenceHandler(state, (Path.Combine(paths.BasePath, "Data", "DcsBitGroups.json")));
-            percentHandler = new PercentHandler();
             oscHandler = new OscHandler();
             _dcsHandler.OnDcsResponse += bytes =>
             {
@@ -73,18 +72,6 @@ namespace Parser
                 DcsResponse?.Invoke(bytes);
             };
 
-        }
-
-        private void SetState(ParseState newState)
-        {
-            this.LogTrace($"[Parser] State → {newState}");
-            state = newState;
-        }
-
-        private void ClearSeqBuffer()
-        {
-            this.LogDebug("[Parser] Sekvensbuffer rensad");
-            seqBuffer.Clear();
         }
 
         /// <summary>
@@ -204,7 +191,6 @@ namespace Parser
                         case ParseState.EscDollar:
 
                             seqBuffer.Append((char)b);
-                            //this.LogTrace($"[Feed EscDollar] Escape {seqBuffer} detekterat");
 
                             if (seqBuffer.Length == 2)
                             {
@@ -239,8 +225,6 @@ namespace Parser
                 HandleOsc(sequence);
             else if (sequence.StartsWith("\x1B$"))
                 HandleCharset(sequence);
-            else if (sequence.StartsWith("\x1B%"))
-                HandleEncoding(sequence);
             else if (sequence.StartsWith("\x1BP"))
                 _dcsHandler.Handle(Encoding.ASCII.GetBytes(sequence));
             else
@@ -249,22 +233,9 @@ namespace Parser
 
         private void HandleSingleEsc(string sequence) => escHandler.Handle(sequence);
         private void HandleOsc(string sequence) => oscHandler.Handle(sequence);
-        private void HandleEncoding(string sequence) => percentHandler.Handle(sequence);
         private void HandleCsi(char finalChar, string sequence) => _csiHandler.Handle(finalChar, sequence, termState, Screenbuffer, visualAttributeManager);
         private void HandleCharset(string sequence) => escHandler.Handle(sequence);
         private void HandleDcs(string sequence) => _dcsHandler.Handle(Encoding.ASCII.GetBytes(sequence));
-
-        private void HandleEscPercent(char ch)
-        {
-            seqBuffer.Append(ch);
-            if (ch >= '@' && ch <= 'G')
-            {
-                string percentSeq = seqBuffer.ToString();
-                percentHandler.Handle(percentSeq);
-                seqBuffer.Clear();
-                state = ParseState.Normal;
-            }
-        }
 
         private void HandleEscOther(string escSeq)
         {
@@ -293,14 +264,6 @@ namespace Parser
         public void Handle(string sequence)
         {
             this.LogDebug($"[ESC $] {sequence}");
-        }
-    }
-
-    public class PercentHandler
-    {
-        public void Handle(string sequence)
-        {
-            this.LogDebug($"[ESC %] {sequence}");
         }
     }
 }

@@ -87,7 +87,7 @@
     {
       "Command": "r",
       "Name": "Change Visual Display",
-      "Params": ">n",
+      "Params": "n1;n2;...",
       "Description": "Change Visual attributes of Display"
     }
   ]

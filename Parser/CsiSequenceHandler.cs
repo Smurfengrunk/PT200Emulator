@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Logging;
 
 namespace Parser
 {
@@ -21,7 +22,6 @@ namespace Parser
 
         public void Handle(char finalChar, string sequence, TerminalState terminal, ScreenBuffer buffer, VisualAttributeManager visualAttributeManager)
         {
-            //this.LogDebug($"[CSI] Sekvens mottagen: ESC[{sequence}");
             paramStr = string.Empty;
             parameters = new string[0];
             // Exempel: "12;24H"
@@ -33,8 +33,7 @@ namespace Parser
             isPrivate = paramStr.StartsWith("?") || paramStr.StartsWith(">");
             if (table.TryHandle(finalChar, command, paramStr, out parameters, terminal, buffer, out var def))
             {
-                if (def != null) this.LogDebug($"[CSI] {def.Description} → {string.Join(", ", parameters)}");
-                else this.LogWarning($"[Handler] ESC[{paramStr}{command} är inte implementerad");
+                if (def == null) this.LogWarning($"[Handler] ESC[{paramStr}{command} är inte implementerad");
                 // Här kan du trigga en TerminalAction eller uppdatera TerminalState
             }
             else
@@ -143,6 +142,7 @@ namespace Parser
                     _definitions.TryGetValue($"{command}:>n", out def))
                     return true;
             }
+            if (command.Contains("r")) Debugger.Break();
 
             // Fallback: matcha bara kommandot om det finns
             if (_definitions.TryGetValue(command, out def))
@@ -161,11 +161,12 @@ namespace Parser
 
             if (IsRowColumn(paramStr) && _definitions.TryGetValue($"{command}:row;column", out def))
             {
-                this.LogInformation($"[TryGet] {def.Name} -> {paramStr} {def.Description}, def={def.Name}");
+                this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}");
             }
+            
             else if (IsNumericList(paramStr) && _definitions.TryGetValue($"{command}:n1;n2;...", out def))
             {
-                this.LogInformation($"[TryGet] {def.Name} -> {paramStr} {def.Description}, def={def.Name}");
+                this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}");
             }
             else if (paramStr.StartsWith(">"))
             {
@@ -180,7 +181,7 @@ namespace Parser
 
                     if (_definitions.TryGetValue(key, out def))
                     {
-                        this.LogInformation($"[TryHandle] {def.Name} -> {paramStr} {def.Description}");
+                        this.LogInformation($"[TryHandle] {def.Name} -> {paramStr}: {def.Description}");
                     }
                 }
                 else if (parts.All(p => p.Length > 1 && p[0] == '>' && p.Substring(1).All(char.IsDigit)))

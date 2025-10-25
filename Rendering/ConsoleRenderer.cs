@@ -1,10 +1,11 @@
 ﻿using Parser;
+using Logging;
 
 namespace Rendering
 {
     public class ConsoleRenderer
     {
-        struct RenderSnapshot
+        private record struct RenderSnapshot
         {
             public char Char;
             public ConsoleColor Fg;
@@ -26,6 +27,8 @@ namespace Rendering
         private bool _initialized = false;
         public bool inEmacs { get; set; }
         private ScreenBuffer _screenBuffer;
+        private StyleInfo zoneAttrOld = new();
+        private CaretController _caretController = new();
 
         public void ForceFullRender()
         {
@@ -35,6 +38,8 @@ namespace Rendering
         public void Render(ScreenBuffer buffer, bool inEmacs)
         {
             _screenBuffer = buffer;
+            _caretController.Hide();
+            int runCharsCount = 0;
 
             if (buffer.clearScreen)
             {
@@ -42,7 +47,7 @@ namespace Rendering
                 Console.Clear();
                 buffer.ScreenCleared();
             }
-            if (buffer.forceRedraw) _initialized = false;
+            if (buffer.forceRedraw) ForceFullRender();
 
             if (_lastFrame == null || _lastFrame.GetLength(0) != buffer.Rows || _lastFrame.GetLength(1) != buffer.Cols)
             {
@@ -53,7 +58,6 @@ namespace Rendering
             // === INITIAL FULL DRAW ===
             if (!_initialized)
             {
-                this.LogDebug($"[Render] Komplett omritning av skärmen: _initialized {_initialized}, forceRedraw {buffer.forceRedraw}, clearScreen {buffer.clearScreen}");
                 for (int row = 0; row < buffer.Rows; row++)
                 {
                     int col = 0;
@@ -69,7 +73,6 @@ namespace Rendering
 
                         if (reverse)
                         {
-                            this.LogDebug($"Cell @({row}, {col}) is reverse video");
                             (fg, bg) = (bg, fg);
                         }
                         if (lowintensity)
@@ -122,78 +125,83 @@ namespace Rendering
                 _initialized = true;
                 buffer.forceRedraw = false;
                 buffer.ClearDirty();
-                return;
             }
-
-            // === DIFF PASS ===
-            for (int row = 0; row < buffer.Rows; row++)
+            else
             {
-                int col = 0;
-
-                while (col < buffer.Cols)
+                // === DIFF PASS ===
+                for (int row = 0; row < buffer.Rows; row++)
                 {
-                    var cell = buffer.GetCell(row, col);
-                    var zone = buffer.ZoneAttributes[row, col];
+                    int col = 0;
 
-                    var fg = zone?.Foreground ?? cell.Style.Foreground;
-                    var bg = zone?.Background ?? cell.Style.Background;
-                    bool reverse = zone?.ReverseVideo ?? cell.Style.ReverseVideo;
-                    bool lowintensity = zone?.LowIntensity ?? cell.Style.LowIntensity;
-
-                    if (reverse) (fg, bg) = (bg, fg);
-                    if (lowintensity)
+                    while (col < buffer.Cols)
                     {
-                        if (reverse) bg = bg.MakeDim();
-                        else fg = fg.MakeDim();
-                    }
+                        var cell = buffer.GetCell(row, col);
+                        var zone = buffer.ZoneAttributes[row, col];
 
-                    var outCh = cell.Char == '\0' ? ' ' : cell.Char;
-                    var snap = new RenderSnapshot(outCh, MapToConsoleColor(fg), MapToConsoleColor(bg), reverse, lowintensity);
+                        var fg = zone?.Foreground ?? cell.Style.Foreground;
+                        var bg = zone?.Background ?? cell.Style.Background;
+                        bool reverse = zone?.ReverseVideo ?? cell.Style.ReverseVideo;
+                        bool lowintensity = zone?.LowIntensity ?? cell.Style.LowIntensity;
 
-                    if (!_lastFrame[row, col].Equals(snap))
-                    {
-                        int runStart = col;
-                        var runFg = snap.Fg;
-                        var runBg = snap.Bg;
-                        var runChars = new List<char>();
-
-                        while (col < buffer.Cols)
+                        if (reverse) (fg, bg) = (bg, fg);
+                        if (lowintensity)
                         {
-                            var c = buffer.GetCell(row, col);
-                            var z = buffer.ZoneAttributes[row, col];
-                            var f = z?.Foreground ?? c.Style.Foreground;
-                            var b = z?.Background ?? c.Style.Background;
-                            var r = z?.ReverseVideo ?? c.Style.ReverseVideo;
-                            var l = z?.LowIntensity ?? c.Style.LowIntensity;
-
-                            if (r) (f, b) = (b, f);
-                            if (l)
-                            {
-                                if (r) b = b.MakeDim();
-                                else f = f.MakeDim();
-                            }
-
-                            var ch = c.Char == '\0' ? ' ' : c.Char;
-                            var s = new RenderSnapshot(ch, MapToConsoleColor(f), MapToConsoleColor(b), r, l);
-
-                            if (!s.Equals(snap)) break;
-
-                            runChars.Add(ch);
-                            _lastFrame[row, col] = s;
-                            col++;
+                            if (reverse) bg = bg.MakeDim();
+                            else fg = fg.MakeDim();
                         }
 
-                        Console.SetCursorPosition(runStart, row);
-                        Console.ForegroundColor = runFg;
-                        Console.BackgroundColor = runBg;
-                        Console.Write(runChars.ToArray());
-                    }
-                    else
-                    {
-                        col++;
+                        var outCh = cell.Char == '\0' ? ' ' : cell.Char;
+                        var snap = new RenderSnapshot(outCh, MapToConsoleColor(fg), MapToConsoleColor(bg), reverse, lowintensity);
+
+                        if (!_lastFrame[row, col].Equals(snap))
+                        {
+                            int runStart = col;
+                            var runFg = snap.Fg;
+                            var runBg = snap.Bg;
+                            var runChars = new List<char>();
+
+                            while (col < buffer.Cols)
+                            {
+                                var c = buffer.GetCell(row, col);
+                                var z = buffer.ZoneAttributes[row, col];
+                                var f = z?.Foreground ?? c.Style.Foreground;
+                                var b = z?.Background ?? c.Style.Background;
+                                var r = z?.ReverseVideo ?? c.Style.ReverseVideo;
+                                var l = z?.LowIntensity ?? c.Style.LowIntensity;
+
+                                if (r) (f, b) = (b, f);
+                                if (l)
+                                {
+                                    if (r) b = b.MakeDim();
+                                    else f = f.MakeDim();
+                                }
+
+                                var ch = c.Char == '\0' ? ' ' : c.Char;
+                                var s = new RenderSnapshot(ch, MapToConsoleColor(f), MapToConsoleColor(b), r, l);
+
+                                if (!s.Equals(snap)) break;
+
+                                runChars.Add(ch);
+                                _lastFrame[row, col] = s;
+                                col++;
+                            }
+
+                            Console.SetCursorPosition(runStart, row);
+                            Console.ForegroundColor = runFg;
+                            Console.BackgroundColor = runBg;
+                            Console.Write(runChars.ToArray());
+                            runCharsCount++;
+                        }
+                        else
+                        {
+                            col++;
+                        }
                     }
                 }
             }
+            runCharsCount = 0;
+            _caretController.SetCaretPosition(buffer.CursorRow, buffer.CursorCol);
+            _caretController.Show();
         }
 
         private static ConsoleColor MapToConsoleColor(StyleInfo.Color color)

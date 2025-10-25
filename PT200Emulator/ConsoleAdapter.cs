@@ -2,17 +2,19 @@
 using System.Text;
 using Transport;
 using Parser;
+using Logging;
 
 public class ConsoleAdapter
 {
     private readonly IInputMapper _mapper;
     private readonly Action<byte[]> _send;
-    private readonly EchoFilter echoFilter = new();
+    private readonly ScreenBuffer _buffer;
 
-    public ConsoleAdapter(IInputMapper mapper, Action<byte[]> send)
+    public ConsoleAdapter(IInputMapper mapper, Action<byte[]> send, ScreenBuffer buffer)
     {
         _mapper = mapper;
         _send = send;
+        _buffer = buffer;
     }
 
 #pragma warning disable CS8604
@@ -28,13 +30,18 @@ public class ConsoleAdapter
                 continue;
             }
 
-            if (keyInfo.Key == ConsoleKey.Enter) _send(Encoding.ASCII.GetBytes("\r\n"));
+            if (keyInfo.Key == ConsoleKey.Enter)
+            {
+                _send(Encoding.ASCII.GetBytes("\r\n"));
+            }
             else if (keyInfo.Key == ConsoleKey.Backspace)
             {
                 _send(new byte[] { 0x08 });
-                Console.Write("\b \b"); // lokalt eko
-                echoFilter.MarkBackspaceSent();
+                _buffer.Backspace();
             }
+            else if (keyInfo.Key == ConsoleKey.Tab) _send(new byte[] { 0x09 });
+            else if (keyInfo.Key == ConsoleKey.Delete) _send(new byte[] { 0x7F });
+
             else if (SpecialKeyMap.TryGetValue(keyInfo.Key, out var scanCode))
             {
                 var ev = new KeyEvent(scanCode, TranslateModifiers(keyInfo.Modifiers));
